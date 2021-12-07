@@ -12,6 +12,9 @@ int lX=0, lY=1, lZ=0;
 
 int rot=0;
 
+int angulo1 = 0, angulo2 = 0, angulo3 = 0, angulo4 = 0, angulo5 = 0, angulo6 = 0,
+angulo7 = 0, angulo8 = 0, angulo9 = 0;
+
 void Display();
 void Mouse(int btn, int state, int x, int y);
 void Keyboard(unsigned char key, int x, int y);
@@ -112,11 +115,64 @@ void BuildScene() {
 
 void BuildArm() {
 
+    //primeiro elo
     glPushMatrix();
     glColor3ub(51, 51, 255);
     glTranslatef(0, 2.5, 0);
     glutSolidCube(1.0);
     glPopMatrix();
+    glColor3f(1,0,0);
+    glTranslatef(0,3.2,0);
+    glScalef(0.6,0.6,0.6);
+    //primeira esfera
+    glRotatef(angulo1, 1, 0, 0);
+    glRotatef(angulo2, 0, 1, 0);
+    glRotatef(angulo3, 0, 0, 1);
+    glutSolidSphere(0.7,20,20);
+    //primeiro elo
+    glColor3f(0,1,0);
+    glTranslatef(0,2,0);
+    glPushMatrix();
+        glScalef(1.5,10,1);
+        glutSolidCube(0.5);
+    glPopMatrix();
+    //segunda esfera
+    glColor3f(1,0,0);
+    glTranslatef(0,3,0);
+    glRotatef(angulo4, 1, 0, 0);
+    glRotatef(angulo5, 0, 1, 0);
+    glRotatef(angulo6, 0, 0, 1);
+    glutSolidSphere(0.7,20,20);
+    //segundo elo
+    glColor3f(0,1,0);
+    glTranslatef(2.5,0,0);
+    glPushMatrix();
+        glScalef(10,1.5,1);
+        glutSolidCube(0.5);
+    glPopMatrix();
+    //terceira esfera
+    glColor3f(1,0,0);
+    glTranslatef(3,0,0);
+    glRotatef(angulo7, 1, 0, 0);
+    glRotatef(angulo8, 0, 1, 0);
+    glRotatef(angulo9, 0, 0, 1);
+    glutSolidSphere(0.7,20,20);
+    //garra
+    glColor3f(0,1,0);
+    glTranslatef(0.85,0,0); 
+    glPushMatrix();
+        glScalef(1,1,5);
+        glutSolidCube(0.5);
+        glPushMatrix();
+            glTranslatef(0.75,0,-0.2);
+            glScalef(5,0.5,0.5);
+            glutSolidCube(0.25);
+        glPopMatrix();
+            glTranslatef(0.75,0, 0.2);
+            glScalef(5,0.5,0.5);
+            glutSolidCube(0.25);
+    glPopMatrix();
+
 
 }
 
@@ -158,6 +214,7 @@ void Mouse(int btn, int state, int x, int y) {
 /******************************************************************/
 
 void Keyboard(unsigned char key, int x, int y) {
+    //movimentações da câmera
     if(key=='d') {
         oX+=5;
         lY=1;
@@ -187,6 +244,72 @@ void Keyboard(unsigned char key, int x, int y) {
         lX=0, lY=1, lZ=0;
         rot=0;
     }
+    //rotações
+    
+    // primeira esfera
+    else if(key=='u') {
+        angulo1 = (angulo1 - 5) % 360;
+    }
+    else if(key=='U') {
+        angulo1 = (angulo1 + 5) % 360;
+    }
+        else if(key=='i') {
+        angulo2 = (angulo2 - 5) % 360;
+    }
+    else if(key=='I') {
+        angulo2 = (angulo2 + 5) % 360;
+    }
+        else if(key=='o') {
+        angulo3 = (angulo3 - 5) % 360;
+    }
+    else if(key=='O') {
+        angulo3 = (angulo3 + 5) % 360;
+    }
+
+
+    //segunda esfera
+    else if(key=='j') {
+        angulo4 = (angulo4 - 5) % 360;
+    }
+    else if(key=='J') {
+        angulo4 = (angulo4 + 5) % 360;
+    }
+    else if(key=='k') {
+        angulo5 = (angulo5 - 5) % 360;
+    }
+    else if(key=='K') {
+        angulo5 = (angulo5 + 5) % 360;
+    }
+       else if(key=='l') {
+        angulo6 = (angulo6 - 5) % 360;
+    }
+    else if(key=='L') {
+        angulo6 = (angulo6 + 5) % 360;
+    }
+
+
+    //terceira esfera
+    else if(key=='b') {
+        angulo7 = (angulo7 - 5) % 360;
+    }
+    else if(key=='B') {
+        angulo7 = (angulo7 + 5) % 360;
+    }
+       else if(key=='n') {
+        angulo8 = (angulo8 - 5) % 360;
+    }
+    else if(key=='N') {
+        angulo8 = (angulo8 + 5) % 360;
+    }
+       else if(key=='m') {
+        angulo9 = (angulo9 - 5) % 360;
+    }
+    else if(key=='M') {
+        angulo9 = (angulo9 + 5) % 360;
+    }
+
+
+
     glutPostRedisplay();
 }
 
