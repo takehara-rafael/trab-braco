@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include <GL/freeglut.h>
 
 #define WINDOW_SIZE 700
@@ -15,12 +16,16 @@ int rot=0;
 int angulo1 = 0, angulo2 = 0, angulo3 = 0, angulo4 = 0, angulo5 = 0, angulo6 = 0,
 angulo7 = 0, angulo8 = 0, angulo9 = 0;
 
+double rand_x = 0, rand_z= 0;
+
 void Display();
 void Mouse(int btn, int state, int x, int y);
 void Keyboard(unsigned char key, int x, int y);
 void SpecKeys(int key, int x, int y);
 void BuildScene();
 void BuildArm();
+double rand_number();
+void CreateCube();
 
 
 /******************************************************************/
@@ -56,6 +61,10 @@ void Display() {
 
     glPushMatrix();
     BuildArm();
+    glPopMatrix();
+
+    glPushMatrix();
+    CreateCube();
     glPopMatrix();
 
     glutSwapBuffers();
@@ -174,6 +183,28 @@ void BuildArm() {
     glPopMatrix();
 
 
+}
+
+/******************************************************************/
+
+double rand_number(double min, double max) {
+    double num = (((double)rand()/(double)RAND_MAX)*max) + min;  //resultado entre min e (max+min)
+    if (num>-1 && num<1)
+    {
+        while(num>-1 && num<1)
+        {
+            num = (((double)rand()/(double)RAND_MAX)*max) + min;
+        }
+    }
+    return num;
+}
+
+void CreateCube() {
+    glPushMatrix();
+        glColor3ub(255,0,255);
+        glTranslatef(rand_x,2.3,rand_z);
+        glutSolidCube(0.3);
+    glPopMatrix();
 }
 
 /******************************************************************/
@@ -341,6 +372,11 @@ void SpecKeys(int key, int x, int y) {
 /******************************************************************/
 
 int main(int argc, char **argv) {
+
+    srand(time(NULL));
+
+    rand_x = rand_number(-2.25, 4.5);
+    rand_z = rand_number(-2.25, 4.5);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
