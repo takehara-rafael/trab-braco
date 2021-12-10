@@ -7,7 +7,7 @@
 
 int proj=0;
 
-int posX=0, posY=10, posZ=15;
+int posX=0, posY=15, posZ=25;
 int oX=0, oY=0, oZ=0;
 int lX=0, lY=1, lZ=0;
 
@@ -41,7 +41,7 @@ void Display() {
 
     glLoadIdentity();
     if(proj==1) {
-        glOrtho(-50, 50, -50, 50, -50, 50);
+        glOrtho(-100, 100, -100, 100, -100, 100);
     } else {
         gluPerspective(45,1,1,50);
     }
@@ -75,8 +75,8 @@ void Display() {
 void BuildScene() {
     glPushMatrix();
     glColor3ub(255, 255, 255);
-    glScalef(1, 0.01, 1);
-    glutSolidCube(10.0);
+    glScalef(1, 0.0001, 1);
+    glutSolidCube(100.0);
     glPopMatrix();
 
 
@@ -86,35 +86,31 @@ void BuildScene() {
     glPushMatrix();
     glTranslatef(0, 2, 0);
     glScalef(1, 0.02, 1);
-    glutSolidCube(5.0);
+    glutSolidCube(20.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(2, 0, 2);
-    glRotatef(90, -1, 0, 0);
-    glScalef(0.1, 0.1, 1);
-    glutSolidCylinder(1, 2, 50, 1);
+    glTranslatef(8, 1, 8);
+    glScalef(0.5, 2, 0.5);
+    glutSolidCube(1.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-2, 0, 2);
-    glRotatef(90, -1, 0, 0);
-    glScalef(0.1, 0.1, 1);
-    glutSolidCylinder(1, 2, 50, 1);
+    glTranslatef(-8, 1, 8);
+    glScalef(0.5, 2, 0.5);
+    glutSolidCube(1.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-2, 0, -2);
-    glRotatef(90, -1, 0, 0);
-    glScalef(0.1, 0.1, 1);
-    glutSolidCylinder(1, 2, 50, 1);
+    glTranslatef(-8, 1, -8);
+    glScalef(0.5, 2, 0.5);
+    glutSolidCube(1.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(2, 0, -2);
-    glRotatef(90, -1, 0, 0);
-    glScalef(0.1, 0.1, 1);
-    glutSolidCylinder(1, 2, 50, 1);
+    glTranslatef(8, 1, -8);
+    glScalef(0.5, 2, 0.5);
+    glutSolidCube(1.0);
     glPopMatrix();
 
     glPopMatrix();
@@ -130,6 +126,7 @@ void BuildArm() {
     glTranslatef(0, 2.5, 0);
     glutSolidCube(1.0);
     glPopMatrix();
+
     glColor3f(1,0,0);
     glTranslatef(0,3.2,0);
     glScalef(0.6,0.6,0.6);
@@ -138,6 +135,7 @@ void BuildArm() {
     glRotatef(angulo2, 0, 1, 0);
     glRotatef(angulo3, 0, 0, 1);
     glutSolidSphere(0.7,20,20);
+
     //primeiro elo
     glColor3f(0,1,0);
     glTranslatef(0,2,0);
@@ -145,6 +143,7 @@ void BuildArm() {
         glScalef(1.5,10,1);
         glutSolidCube(0.5);
     glPopMatrix();
+
     //segunda esfera
     glColor3f(1,0,0);
     glTranslatef(0,3,0);
@@ -152,6 +151,7 @@ void BuildArm() {
     glRotatef(angulo5, 0, 1, 0);
     glRotatef(angulo6, 0, 0, 1);
     glutSolidSphere(0.7,20,20);
+
     //segundo elo
     glColor3f(0,1,0);
     glTranslatef(2.5,0,0);
@@ -159,6 +159,7 @@ void BuildArm() {
         glScalef(10,1.5,1);
         glutSolidCube(0.5);
     glPopMatrix();
+
     //terceira esfera
     glColor3f(1,0,0);
     glTranslatef(3,0,0);
@@ -166,6 +167,7 @@ void BuildArm() {
     glRotatef(angulo8, 0, 1, 0);
     glRotatef(angulo9, 0, 0, 1);
     glutSolidSphere(0.7,20,20);
+
     //garra
     glColor3f(0,1,0);
     glTranslatef(0.85,0,0); 
@@ -214,7 +216,7 @@ void Mouse(int btn, int state, int x, int y) {
         case GLUT_LEFT_BUTTON:
             if(state == GLUT_DOWN) {
                 proj=1;
-                posX=0; posY=10; posZ=20;
+                posX=0; posY=5; posZ=5;
                 oX=0; oY=0; oZ=0;
                 lX=0; lY=1; lZ=0;
                 glutPostRedisplay();
@@ -223,7 +225,7 @@ void Mouse(int btn, int state, int x, int y) {
         case GLUT_RIGHT_BUTTON:
             if(state == GLUT_DOWN) {
                 proj=0;
-                posX=0; posY=10; posZ=20;
+                posX=0; posY=20; posZ=20;
                 oX=0; oY=0; oZ=0;
                 lX=0; lY=1; lZ=0;
                 glutPostRedisplay();
@@ -232,7 +234,7 @@ void Mouse(int btn, int state, int x, int y) {
         case GLUT_MIDDLE_BUTTON:
             if(state == GLUT_DOWN) {
                 proj=0;
-                posX=20; posY=0; posZ=0;
+                posX=30; posY=0; posZ=0;
                 oX=0; oY=0; oZ=0;
                 lX=0; lY=1; lZ=0;
                 glutPostRedisplay();
@@ -270,7 +272,7 @@ void Keyboard(unsigned char key, int x, int y) {
         exit(0);
     } else if(key=='p') {
         proj=0;
-        posX=0, posY=10, posZ=15;
+        posX=0, posY=15, posZ=25;
         oX=0, oY=0, oZ=0;
         lX=0, lY=1, lZ=0;
         rot=0;
