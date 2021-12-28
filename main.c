@@ -16,6 +16,10 @@ int rot=0;
 int angulo1 = 0, angulo2 = 0, angulo3 = 0, angulo4 = 0, angulo5 = 0, angulo6 = 0,
 angulo7 = 0, angulo8 = 0, angulo9 = 0;
 
+int grab = 0;
+
+double dist1 = 0, dist2 = 0;
+
 double rand_x = 0, rand_z= 0;
 
 void Display();
@@ -64,7 +68,9 @@ void Display() {
     glPopMatrix();
 
     glPushMatrix();
-    CreateCube();
+    if(!grab){
+        CreateCube(grab);
+    }
     glPopMatrix();
 
     glutSwapBuffers();
@@ -136,7 +142,7 @@ void BuildArm() {
     glRotatef(angulo3, 0, 0, 1);
     glutSolidSphere(0.7,20,20);
 
-    //primeiro elo
+    //segundo elo
     glColor3f(0,1,0);
     glTranslatef(0,2,0);
     glPushMatrix();
@@ -152,7 +158,7 @@ void BuildArm() {
     glRotatef(angulo6, 0, 0, 1);
     glutSolidSphere(0.7,20,20);
 
-    //segundo elo
+    //terceiro elo
     glColor3f(0,1,0);
     glTranslatef(2.5,0,0);
     glPushMatrix();
@@ -174,12 +180,23 @@ void BuildArm() {
     glPushMatrix();
         glScalef(1,1,5);
         glutSolidCube(0.5);
+        glGetDoublev (GL_MODELVIEW_MATRIX, modelviewMatrix);
+        
+        if(grab) {
+            glPushMatrix();
+                CreateCube(grab);
+            glPopMatrix();
+        }
         glPushMatrix();
-            glTranslatef(0.75,0,-0.2);
+            glColor3f(0,1,0);
+            glTranslatef(0,0,dist1);
+            glTranslatef(0.75,0,-0.1);
             glScalef(5,0.5,0.5);
             glutSolidCube(0.25);
         glPopMatrix();
-            glTranslatef(0.75,0, 0.2);
+            glColor3f(0,1,0);
+            glTranslatef(0,0,dist2);
+            glTranslatef(0.75,0, 0.1);
             glScalef(5,0.5,0.5);
             glutSolidCube(0.25);
     glPopMatrix();
@@ -190,23 +207,43 @@ void BuildArm() {
 /******************************************************************/
 
 double rand_number(double min, double max) {
-    double num = (((double)rand()/(double)RAND_MAX)*max) + min;  //resultado entre min e (max+min)
-    if (num>-1 && num<1)
+
+    int choice;
+    double num;
+
+    choice = rand() % 2; // 0 ou 1
+    if(choice)
     {
-        while(num>-1 && num<1)
-        {
-            num = (((double)rand()/(double)RAND_MAX)*max) + min;
-        }
+        num = (((double)rand()/(double)RAND_MAX)*min); //gera número entre min e 0
     }
+    else
+    {
+        num = (((double)rand()/(double)RAND_MAX)*max); // gera número entre 0 e max
+    }
+
     return num;
 }
 
-void CreateCube() {
-    glPushMatrix();
-        glColor3ub(255,0,255);
+void CreateCube(int grab) {
+    glColor3ub(255,0,255);
+    if(!grab) {
         glTranslatef(rand_x,2.3,rand_z);
         glutSolidCube(0.3);
-    glPopMatrix();
+    }else {
+        if(x == rand_x && y == 2.3 && z == rand_z)
+        glTranslatef(0.5,0,0);
+        glScalef(1,1,0.2);
+        glutSolidCube(0.3);
+    }
+}
+
+/******************************************************************/
+
+int GrabCube() {
+
+
+
+    return 1;
 }
 
 /******************************************************************/
@@ -341,6 +378,26 @@ void Keyboard(unsigned char key, int x, int y) {
         angulo9 = (angulo9 + 5) % 360;
     }
 
+    //movimento linear da garra
+    else if(key=='+') {
+        grab = 0;
+           if(dist2 <= 0.05) {
+            dist1 -= 0.01;
+            dist2 += 0.01;
+        }
+    }
+    else if(key=='-') {
+        grab = 0;
+        if((dist2-dist1)>0) {
+            dist2 -= 0.01;
+            dist1 += 0.01;
+        }
+        else{
+            if(GrabCube())
+                grab = 1;
+        }
+    }
+
 
 
     glutPostRedisplay();
@@ -377,8 +434,8 @@ int main(int argc, char **argv) {
 
     srand(time(NULL));
 
-    rand_x = rand_number(-2.25, 4.5);
-    rand_z = rand_number(-2.25, 4.5);
+    rand_x = rand_number(-6, 6);
+    rand_z = rand_number(-6, 6);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
