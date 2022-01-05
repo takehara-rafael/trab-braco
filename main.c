@@ -5,6 +5,11 @@
 
 #define WINDOW_SIZE 700
 
+struct parte {
+    int ang_x, ang_y, ang_z;
+    double pos_x, pos_y, pos_z;
+} dedo_esq, dedo_dir, garra, cubo;
+
 int proj=0;
 
 int posX=0, posY=15, posZ=25;
@@ -16,7 +21,11 @@ int rot=0;
 int angulo1 = 0, angulo2 = 0, angulo3 = 0, angulo4 = 0, angulo5 = 0, angulo6 = 0,
 angulo7 = 0, angulo8 = 0, angulo9 = 0;
 
-double rand_x = 0, rand_z= 0;
+int grab = 0;
+
+double rand_x = 0, rand_z = 0;
+
+double transMatrix[16];
 
 void Display();
 void Mouse(int btn, int state, int x, int y);
@@ -24,8 +33,8 @@ void Keyboard(unsigned char key, int x, int y);
 void SpecKeys(int key, int x, int y);
 void BuildScene();
 void BuildArm();
+void DrawCube(GLfloat centerPosX, GLfloat centerPosY, GLfloat centerPosZ, GLfloat edgeLength);
 double rand_number();
-void CreateCube();
 
 
 /******************************************************************/
@@ -55,16 +64,18 @@ void Display() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glPushMatrix();
-    BuildScene();
-    glPopMatrix();
+        glPushMatrix();
+        glColor3ub(255,0,255);
+        if(!grab)
+            DrawCube(rand_x, 2.6, rand_z, 0.5);
+        glPopMatrix();
 
     glPushMatrix();
     BuildArm();
     glPopMatrix();
 
     glPushMatrix();
-    CreateCube();
+    BuildScene();
     glPopMatrix();
 
     glutSwapBuffers();
@@ -73,44 +84,47 @@ void Display() {
 /******************************************************************/
 
 void BuildScene() {
+
     glPushMatrix();
-    glColor3ub(255, 255, 255);
-    glScalef(1, 0.0001, 1);
-    glutSolidCube(100.0);
+    
+    //chão
+    glPushMatrix();
+        glColor3ub(255, 255, 255);
+        glScalef(1, 0.0001, 1);
+        glutSolidCube(100.0);
     glPopMatrix();
 
-
+    //mesa
     glPushMatrix();
-    glColor3ub(150, 75, 0);
-
-    glPushMatrix();
-    glTranslatef(0, 2, 0);
-    glScalef(1, 0.02, 1);
-    glutSolidCube(20.0);
+        glColor3ub(150, 75, 0);
+        glTranslatef(0, 2, 0);
+        glScalef(1, 0.02, 1);
+        glutSolidCube(20.0);
     glPopMatrix();
 
+    //pés da mesa
     glPushMatrix();
-    glTranslatef(8, 1, 8);
-    glScalef(0.5, 2, 0.5);
-    glutSolidCube(1.0);
-    glPopMatrix();
-
-    glPushMatrix();
-    glTranslatef(-8, 1, 8);
-    glScalef(0.5, 2, 0.5);
-    glutSolidCube(1.0);
+        glTranslatef(8, 1, 8);
+        glScalef(0.5, 2, 0.5);
+        glutSolidCube(1.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(-8, 1, -8);
-    glScalef(0.5, 2, 0.5);
-    glutSolidCube(1.0);
+        glTranslatef(-8, 1, 8);
+        glScalef(0.5, 2, 0.5);
+        glutSolidCube(1.0);
     glPopMatrix();
 
     glPushMatrix();
-    glTranslatef(8, 1, -8);
-    glScalef(0.5, 2, 0.5);
-    glutSolidCube(1.0);
+        glTranslatef(-8, 1, -8);
+        glScalef(0.5, 2, 0.5);
+        glutSolidCube(1.0);
+    glPopMatrix();
+
+    glPushMatrix();
+        glTranslatef(8, 1, -8);
+        glScalef(0.5, 2, 0.5);
+        glutSolidCube(1.0);
     glPopMatrix();
 
     glPopMatrix();
@@ -120,25 +134,25 @@ void BuildScene() {
 
 void BuildArm() {
 
-    //primeiro elo
     glPushMatrix();
+
+    //primeiro elo
     glColor3ub(51, 51, 255);
     glTranslatef(0, 2.5, 0);
     glutSolidCube(1.0);
-    glPopMatrix();
 
-    glColor3f(1,0,0);
-    glTranslatef(0,3.2,0);
-    glScalef(0.6,0.6,0.6);
     //primeira esfera
+    glColor3f(1,0,0);
+    glTranslatef(0,1,0);
+    glScalef(0.6,0.6,0.6);
     glRotatef(angulo1, 1, 0, 0);
     glRotatef(angulo2, 0, 1, 0);
     glRotatef(angulo3, 0, 0, 1);
     glutSolidSphere(0.7,20,20);
 
-    //primeiro elo
+    //segundo elo
     glColor3f(0,1,0);
-    glTranslatef(0,2,0);
+    glTranslatef(0,2.5,0);
     glPushMatrix();
         glScalef(1.5,10,1);
         glutSolidCube(0.5);
@@ -146,13 +160,13 @@ void BuildArm() {
 
     //segunda esfera
     glColor3f(1,0,0);
-    glTranslatef(0,3,0);
+    glTranslatef(0,2,0);
     glRotatef(angulo4, 1, 0, 0);
     glRotatef(angulo5, 0, 1, 0);
     glRotatef(angulo6, 0, 0, 1);
     glutSolidSphere(0.7,20,20);
 
-    //segundo elo
+    //terceiro elo
     glColor3f(0,1,0);
     glTranslatef(2.5,0,0);
     glPushMatrix();
@@ -162,51 +176,125 @@ void BuildArm() {
 
     //terceira esfera
     glColor3f(1,0,0);
-    glTranslatef(3,0,0);
-    glRotatef(angulo7, 1, 0, 0);
-    glRotatef(angulo8, 0, 1, 0);
-    glRotatef(angulo9, 0, 0, 1);
+    glTranslatef(2,0,0);
+    glRotatef(garra.ang_x, 1, 0, 0);
+    glRotatef(garra.ang_y, 0, 1, 0);
+    glRotatef(garra.ang_z, 0, 0, 1);
     glutSolidSphere(0.7,20,20);
 
     //garra
     glColor3f(0,1,0);
     glTranslatef(0.85,0,0); 
+    glScalef(1,1,5);
+    glutSolidCube(0.5);
+
     glPushMatrix();
-        glScalef(1,1,5);
-        glutSolidCube(0.5);
-        glPushMatrix();
-            glTranslatef(0.75,0,-0.2);
-            glScalef(5,0.5,0.5);
-            glutSolidCube(0.25);
-        glPopMatrix();
-            glTranslatef(0.75,0, 0.2);
-            glScalef(5,0.5,0.5);
-            glutSolidCube(0.25);
+    glGetDoublev(GL_MODELVIEW_MATRIX, transMatrix);
+    
+    garra.pos_x = transMatrix[14] + 27;
+    garra.pos_y = transMatrix[15] - 1;
+    garra.pos_z = transMatrix[16];
+
+    glPointSize(20.0f);
+    glColor3f(1.0f, 0.0f, 0.0f);
+
+    glBegin(GL_POINTS);
+        glVertex3f(garra.pos_x,garra.pos_y,garra.pos_z);
+    glEnd();
     glPopMatrix();
 
+    
+    if(abs(garra.pos_x - rand_x) < 0.5 && abs(garra.pos_y - 2.6) < 0.5 && abs(garra.pos_z - rand_z) < 0.5) {
+        grab = 1;
+        DrawCube(0.2,0,0, 0.5);
+    }
+
+
+    glPushMatrix(); 
+        glColor3f(0,1,0);
+        glTranslatef(0,0,dedo_esq.pos_z);
+        glTranslatef(0.75,0,-0.1);
+        glScalef(5,0.5,0.5);
+        glutSolidCube(0.25);
+    glPopMatrix();
+    glPushMatrix();
+        glColor3f(0,1,0);
+        glTranslatef(0,0,dedo_dir.pos_z);
+        glTranslatef(0.75,0, 0.1);
+        glScalef(5,0.5,0.5);
+        glutSolidCube(0.25);
+    glPopMatrix();
+
+    glPopMatrix();
 
 }
 
 /******************************************************************/
 
 double rand_number(double min, double max) {
-    double num = (((double)rand()/(double)RAND_MAX)*max) + min;  //resultado entre min e (max+min)
-    if (num>-1 && num<1)
+
+    int choice;
+    double num;
+
+    choice = rand() % 2; // 0 ou 1
+    if(choice)
     {
-        while(num>-1 && num<1)
-        {
-            num = (((double)rand()/(double)RAND_MAX)*max) + min;
-        }
+        num = (((double)rand()/(double)RAND_MAX)*min); //gera número entre min e 0
     }
+    else
+    {
+        num = (((double)rand()/(double)RAND_MAX)*max); // gera número entre 0 e max
+    }
+
     return num;
 }
 
-void CreateCube() {
-    glPushMatrix();
-        glColor3ub(255,0,255);
-        glTranslatef(rand_x,2.3,rand_z);
-        glutSolidCube(0.3);
-    glPopMatrix();
+void DrawCube(GLfloat centerPosX, GLfloat centerPosY, GLfloat centerPosZ, GLfloat edgeLength)
+{
+    GLfloat halfSideLength = edgeLength * 0.5;
+    
+    GLfloat vertices[] = {
+
+        //face frontal
+        centerPosX - halfSideLength, centerPosY + halfSideLength, centerPosZ + halfSideLength, // superior esquerdo
+        centerPosX + halfSideLength, centerPosY + halfSideLength, centerPosZ + halfSideLength, // superior direito
+        centerPosX + halfSideLength, centerPosY - halfSideLength, centerPosZ + halfSideLength, // inferior direito
+        centerPosX - halfSideLength, centerPosY - halfSideLength, centerPosZ + halfSideLength, // inferior esquerdo
+
+        //face distal
+        centerPosX - halfSideLength, centerPosY + halfSideLength, centerPosZ - halfSideLength, // superior esquerdo
+        centerPosX + halfSideLength, centerPosY + halfSideLength, centerPosZ - halfSideLength, // superior direito
+        centerPosX + halfSideLength, centerPosY - halfSideLength, centerPosZ - halfSideLength, // inferior direito
+        centerPosX - halfSideLength, centerPosY - halfSideLength, centerPosZ - halfSideLength, // inferior esquerdo
+
+        //face lateral esquerda
+        centerPosX - halfSideLength, centerPosY + halfSideLength, centerPosZ + halfSideLength, // superior esquerdo
+        centerPosX - halfSideLength, centerPosY + halfSideLength, centerPosZ - halfSideLength, // superior direito
+        centerPosX - halfSideLength, centerPosY - halfSideLength, centerPosZ - halfSideLength, // inferior direito
+        centerPosX - halfSideLength, centerPosY - halfSideLength, centerPosZ + halfSideLength, // inferior esquerdo
+
+        //face lateral direita
+        centerPosX + halfSideLength, centerPosY + halfSideLength, centerPosZ + halfSideLength, // superior esquerdo
+        centerPosX + halfSideLength, centerPosY + halfSideLength, centerPosZ - halfSideLength, // superior direito
+        centerPosX + halfSideLength, centerPosY - halfSideLength, centerPosZ - halfSideLength, // inferior direito
+        centerPosX + halfSideLength, centerPosY - halfSideLength, centerPosZ + halfSideLength, // inferior esquerdo
+
+        //face superior
+        centerPosX - halfSideLength, centerPosY + halfSideLength, centerPosZ + halfSideLength, // superior esquerdo
+        centerPosX - halfSideLength, centerPosY + halfSideLength, centerPosZ - halfSideLength, // superior direito
+        centerPosX + halfSideLength, centerPosY + halfSideLength, centerPosZ - halfSideLength, // inferior direito
+        centerPosX + halfSideLength, centerPosY + halfSideLength, centerPosZ + halfSideLength, // inferior esquerdo
+
+        //face inferior
+        centerPosX - halfSideLength, centerPosY - halfSideLength, centerPosZ + halfSideLength, // superior esquerdo
+        centerPosX - halfSideLength, centerPosY - halfSideLength, centerPosZ - halfSideLength, // superior direito
+        centerPosX + halfSideLength, centerPosY - halfSideLength, centerPosZ - halfSideLength, // inferior direito
+        centerPosX + halfSideLength, centerPosY - halfSideLength, centerPosZ + halfSideLength // inferior esquerdo
+    };
+        glEnableClientState(GL_VERTEX_ARRAY);
+            glVertexPointer(3, GL_FLOAT, 0, vertices);
+            glDrawArrays(GL_QUADS, 0, 24);
+        glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 /******************************************************************/
@@ -323,22 +411,38 @@ void Keyboard(unsigned char key, int x, int y) {
 
     //terceira esfera
     else if(key=='b') {
-        angulo7 = (angulo7 - 5) % 360;
+        garra.ang_x = (garra.ang_x - 5) % 360;
     }
     else if(key=='B') {
-        angulo7 = (angulo7 + 5) % 360;
+        garra.ang_x = (garra.ang_x + 5) % 360;
     }
        else if(key=='n') {
-        angulo8 = (angulo8 - 5) % 360;
+        garra.ang_y = (garra.ang_y - 5) % 360;
     }
     else if(key=='N') {
-        angulo8 = (angulo8 + 5) % 360;
+        garra.ang_y = (garra.ang_y + 5) % 360;
     }
        else if(key=='m') {
-        angulo9 = (angulo9 - 5) % 360;
+        garra.ang_z = (garra.ang_z - 5) % 360;
     }
     else if(key=='M') {
-        angulo9 = (angulo9 + 5) % 360;
+        garra.ang_z = (garra.ang_z + 5) % 360;
+    }
+
+    //movimento linear da garra
+    else if(key=='+') {
+        grab = 0;
+           if(dedo_dir.pos_z - dedo_esq.pos_z <= 0.1) {
+            dedo_esq.pos_z -= 0.01;
+            dedo_dir.pos_z += 0.01;
+        }
+    }
+    else if(key=='-') {
+        grab = 0;
+        if((dedo_dir.pos_z - dedo_esq.pos_z)>0) {
+            dedo_dir.pos_z -= 0.01;
+            dedo_esq.pos_z += 0.01;
+        }
     }
 
 
@@ -377,10 +481,12 @@ int main(int argc, char **argv) {
 
     srand(time(NULL));
 
-    rand_x = rand_number(-2.25, 4.5);
-    rand_z = rand_number(-2.25, 4.5);
+    rand_x = rand_number(-6, 6);
+    rand_z = rand_number(-6, 6);
 
     glutInit(&argc, argv);
+
+    glEnable(GL_DEPTH_TEST);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
     glutInitWindowSize(WINDOW_SIZE, WINDOW_SIZE);
