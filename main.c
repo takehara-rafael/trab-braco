@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <GL/freeglut.h>
+#include <math.h>
 
 #define WINDOW_SIZE 700
 
@@ -11,8 +12,8 @@ struct parte {
 } dedo_esq, dedo_dir, garra, cubo;
 
 int proj=0;
-
-int posX=0, posY=15, posZ=25;
+int aux=1;
+float posX=0, posY=15, posZ=25;
 int oX=0, oY=0, oZ=0;
 int lX=0, lY=1, lZ=0;
 
@@ -364,6 +365,39 @@ void Keyboard(unsigned char key, int x, int y) {
         oX=0, oY=0, oZ=0;
         lX=0, lY=1, lZ=0;
         rot=0;
+    } else if(key=='.'){
+        if(posX==-25){
+            aux=1;
+        }
+        else if (posX == 25){
+            aux=-1;
+        } 
+        posX=posX+aux; posY=15+2*sin(posX*(3.14/4.0));        
+        if(aux==1){
+            posZ=sqrt(pow(25,2)-pow(posX,2));
+        }
+        else{
+            posZ=-sqrt(pow(25,2)-pow(posX,2));
+        }
+        oX=0; oY=0; oZ=0;
+        lX=0; lY=1; lZ=0;
+
+    } else if(key==','){
+        if(posX==-25){
+            aux=-1;
+        }
+        else if (posX == 25){
+            aux=1;
+        } 
+        posX=posX-aux; posY=15+2*sin(posX*(3.14/4.0));
+        if(aux==1){
+            posZ=sqrt(pow(25,2)-pow(posX,2));
+        }
+        else{
+            posZ=-sqrt(pow(25,2)-pow(posX,2));
+        }                
+        oX=0; oY=0; oZ=0;
+        lX=0; lY=1; lZ=0;
     }
     //rotações
     
