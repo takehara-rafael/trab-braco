@@ -13,8 +13,8 @@ struct parte {
 
 int proj=0;
 int aux=1, i=0;
-float posX=0, posY=15, posZ=25,y=0,z=0;
-int oX=0, oY=0, oZ=0;
+float posX=25, posY=15+2*sin(25*(3.14/4.0)), posZ=sqrt(pow(25,2)-pow(25,2)),y=0,z=0;
+int oX=3.2, oY=2.5, oZ=0;
 int lX=0, lY=1, lZ=0;
 float vertices[150];
 int rot=0;
@@ -26,8 +26,6 @@ int grab = 0;
 
 double rand_x = 0, rand_z = 0;
 
-double transMatrix[16];
-
 void Display();
 void Mouse(int btn, int state, int x, int y);
 void Keyboard(unsigned char key, int x, int y);
@@ -36,6 +34,7 @@ void BuildScene();
 void BuildArm();
 void Desenhocaminho();
 void DrawCube(GLfloat centerPosX, GLfloat centerPosY, GLfloat centerPosZ, GLfloat edgeLength);
+void FollowCurve(int);
 double rand_number();
 
 
@@ -71,18 +70,17 @@ void Display() {
         if(!grab)
             DrawCube(rand_x, 2.6, rand_z, 0.5);
         glPopMatrix();
-    
+
     glPushMatrix();
-    Desenhocaminho();
-    glPopMatrix();
-    
-    
-    glPushMatrix();
-    BuildArm();
+        Desenhocaminho();
     glPopMatrix();
 
     glPushMatrix();
-    BuildScene();
+        BuildScene();
+    glPopMatrix();
+
+    glPushMatrix();
+        BuildArm();
     glPopMatrix();
 
     glutSwapBuffers();
@@ -150,7 +148,7 @@ void Desenhocaminho(){
        for(i=-25;i<=25;i++){
         vertices[j]=i;
         j++;
-        y=15+2*sin(i*(3.14/4.0));
+        y=15+2*sin(i*(M_PI_4));
         vertices[j]=y;
         j++;
         z=-sqrt(pow(25,2)-pow(i,2));
@@ -160,7 +158,7 @@ void Desenhocaminho(){
        for(i=25;i>=-25;i--){
         vertices[j]=i;
         j++;
-        y=15+2*sin(i*(3.14/4.0));
+        y=15+2*sin(i*(M_PI_4));
         vertices[j]=y;
         j++;
         z=sqrt(pow(25,2)-pow(i,2));
@@ -236,22 +234,6 @@ void BuildArm() {
     glScalef(1,1,5);
     glutSolidCube(0.5);
 
-    glPushMatrix();
-    glGetDoublev(GL_MODELVIEW_MATRIX, transMatrix);
-    
-    garra.pos_x = transMatrix[14] + 27;
-    garra.pos_y = transMatrix[15] - 1;
-    garra.pos_z = transMatrix[16];
-
-    glPointSize(20.0f);
-    glColor3f(1.0f, 0.0f, 0.0f);
-
-    glBegin(GL_POINTS);
-        glVertex3f(garra.pos_x,garra.pos_y,garra.pos_z);
-    glEnd();
-    glPopMatrix();
-
-    
     if(abs(garra.pos_x - rand_x) < 0.5 && abs(garra.pos_y - 2.6) < 0.5 && abs(garra.pos_z - rand_z) < 0.5) {
         grab = 1;
         DrawCube(0.2,0,0, 0.5);
@@ -296,6 +278,52 @@ double rand_number(double min, double max) {
 
     return num;
 }
+
+/******************************************************************/
+
+//função para a câmera seguir a curva construída
+void FollowCurve(int orientation) {
+
+    //caso Z=0
+    if(posZ == 0)
+    {
+        if(posX == -25)
+        {
+            posX+=1;
+            posY=15+2*sin(posX*(M_PI_4));
+            posZ=-sqrt(pow(25,2)-pow(posX,2));
+        }
+        else if(posX == 25)
+        {
+            posX-=1;
+            posY=15+2*sin(posX*(M_PI_4));
+            posZ=sqrt(pow(25,2)-pow(posX,2));
+        }
+    }
+
+    //caso Z>0
+    if(posX>-25 && posZ>0) {
+        posX-=1;
+        posY=15+2*sin(posX*(M_PI_4));
+        posZ=sqrt(pow(25,2)-pow(posX,2));
+    }
+
+    //caso Z<0
+    if(posX<25 && posZ<0)
+    {
+        posX+=1;
+        posY=15+2*sin(posX*(M_PI_4));
+        posZ=-sqrt(pow(25,2)-pow(posX,2));
+    } 
+
+
+    glutPostRedisplay();
+    glutTimerFunc(3000/60,FollowCurve,0); // 60 FPS -> execução recursiva
+    
+
+}
+
+/******************************************************************/
 
 void DrawCube(GLfloat centerPosX, GLfloat centerPosY, GLfloat centerPosZ, GLfloat edgeLength)
 {
@@ -413,40 +441,8 @@ void Keyboard(unsigned char key, int x, int y) {
         lX=0, lY=1, lZ=0;
         rot=0;
     } 
-    //caminho da camera
-      else if(key=='.'){
-        if(posX==-25){
-            aux=1;
-        }
-        else if (posX == 25){
-            aux=-1;
-        } 
-        posX=posX+aux; posY=15+2*sin(posX*(3.14/4.0));        
-        if(aux==1){
-            posZ=sqrt(pow(25,2)-pow(posX,2));
-        }
-        else{
-            posZ=-sqrt(pow(25,2)-pow(posX,2));
-        }
-        oX=0; oY=0; oZ=0;
-        lX=0; lY=1; lZ=0;
-
-    } else if(key==','){
-        if(posX==-25){
-            aux=-1;
-        }
-        else if (posX == 25){
-            aux=1;
-        } 
-        posX=posX-aux; posY=15+2*sin(posX*(3.14/4.0));
-        if(aux==1){
-            posZ=sqrt(pow(25,2)-pow(posX,2));
-        }
-        else{
-            posZ=-sqrt(pow(25,2)-pow(posX,2));
-        }                
-        oX=0; oY=0; oZ=0;
-        lX=0; lY=1; lZ=0;
+    else if(key=='g'){ //tecla g é utilizada para iniciar a trajetória
+        glutTimerFunc(0,FollowCurve,0);
     }
     //rotações
     
