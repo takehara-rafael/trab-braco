@@ -12,8 +12,8 @@ struct parte {
 } dedo_esq, dedo_dir, garra, cubo;
 
 int proj=0;
-int aux=1;
-float posX=0, posY=15, posZ=25;
+int aux=1, i=0;
+float posX=0, posY=15, posZ=25,y=0,z=0;
 int oX=0, oY=0, oZ=0;
 int lX=0, lY=1, lZ=0;
 
@@ -127,7 +127,32 @@ void BuildScene() {
         glScalef(0.5, 2, 0.5);
         glutSolidCube(1.0);
     glPopMatrix();
+    //desenho do caminho da camera
+    glPushMatrix();
+             
+                 
 
+       for(i=-25;i<=25;i++){
+       glBegin(GL_LINES);
+        y=15+2*sin(i*(3.14/4.0));
+        z=sqrt(pow(25,2)-pow(i,2));
+        glVertex3f(i,y,z);  
+        y=15+2*sin((i+1)*(3.14/4.0));
+        z=sqrt(pow(25,2)-pow((i+1),2));
+        glVertex3f(i+1,y,z);
+        glEnd();
+        glBegin(GL_LINES);
+        y=15+2*sin(i*(3.14/4.0));
+        z=-sqrt(pow(25,2)-pow(i,2));
+        glVertex3f(i,y,z);  
+        y=15+2*sin((i+1)*(3.14/4.0));
+        z=-sqrt(pow(25,2)-pow((i+1),2));
+        glVertex3f(i+1,y,z); 
+        glEnd();           
+       }
+
+    glPopMatrix();
+    
     glPopMatrix();
 }
 
@@ -365,7 +390,9 @@ void Keyboard(unsigned char key, int x, int y) {
         oX=0, oY=0, oZ=0;
         lX=0, lY=1, lZ=0;
         rot=0;
-    } else if(key=='.'){
+    } 
+    //caminho da camera
+      else if(key=='.'){
         if(posX==-25){
             aux=1;
         }
