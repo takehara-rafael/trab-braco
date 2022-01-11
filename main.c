@@ -19,7 +19,7 @@ angle7 = 0, angle8 = 0, angle9 = 0;
 
 float pos1=0, pos2=0, pos3=0, pos4=0, pos5=0, pos6=0;
 
-int pause, choice=0;
+int pause=1, choice=0;
 
 double rand_x = 0, rand_z = 0;
 
@@ -61,7 +61,7 @@ void Display() {
     glRotatef(rot, Xl, Yl, Zl);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        
     glColor3ub(255,0,255);
     DrawCube(rand_x, 2.6, rand_z, 0.5);
 
@@ -260,44 +260,46 @@ double rand_number(double min, double max) {
 /******************************************************************/
 
 //função para a câmera seguir a curva construída
-void FollowCurve(int orientation) {
+void FollowCurve(int timerOn) {
 
-    //caso Z=0
-    if(Zpos == 0)
+    if(!pause)
     {
-        if(Xpos == -25)
+        //caso Z=0
+        if(Zpos == 0)
         {
-            Xpos+=1;
-            Ypos=15+2*sin(Xpos*(M_PI_4));
-            Zpos=-sqrt(pow(25,2)-pow(Xpos,2));
+            if(Xpos == -25)
+            {
+                Xpos+=1;
+                Ypos=15+2*sin(Xpos*(M_PI_4));
+                Zpos=-sqrt(pow(25,2)-pow(Xpos,2));
+            }
+            else if(Xpos == 25)
+            {
+                Xpos-=1;
+                Ypos=15+2*sin(Xpos*(M_PI_4));
+                Zpos=sqrt(pow(25,2)-pow(Xpos,2));
+            }
         }
-        else if(Xpos == 25)
-        {
+
+        //caso Z>0
+        if(Xpos>-25 && Zpos>0) {
             Xpos-=1;
             Ypos=15+2*sin(Xpos*(M_PI_4));
             Zpos=sqrt(pow(25,2)-pow(Xpos,2));
         }
+
+        //caso Z<0
+        if(Xpos<25 && Zpos<0)
+        {
+            Xpos+=1;
+            Ypos=15+2*sin(Xpos*(M_PI_4));
+            Zpos=-sqrt(pow(25,2)-pow(Xpos,2));
+        } 
+
+
+        glutPostRedisplay();
+        glutTimerFunc(2000/15,FollowCurve,0); // 15 FPS -> execução recursiva
     }
-
-    //caso Z>0
-    if(Xpos>-25 && Zpos>0) {
-        Xpos-=1;
-        Ypos=15+2*sin(Xpos*(M_PI_4));
-        Zpos=sqrt(pow(25,2)-pow(Xpos,2));
-    }
-
-    //caso Z<0
-    if(Xpos<25 && Zpos<0)
-    {
-        Xpos+=1;
-        Ypos=15+2*sin(Xpos*(M_PI_4));
-        Zpos=-sqrt(pow(25,2)-pow(Xpos,2));
-    } 
-
-
-    glutPostRedisplay();
-    glutTimerFunc(3000/60,FollowCurve,0); // 60 FPS -> execução recursiva
-    
 
 }
 
@@ -420,6 +422,7 @@ void Keyboard(unsigned char key, int x, int y) {
         rot=0;
     } 
     else if(key=='g'){ //tecla g é utilizada para iniciar a trajetória
+        pause = !pause;
         glutTimerFunc(0,FollowCurve,0);
     }
     //rotações
