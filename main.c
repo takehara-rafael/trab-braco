@@ -16,7 +16,7 @@ int aux=1, i=0;
 float posX=0, posY=15, posZ=25,y=0,z=0;
 int oX=0, oY=0, oZ=0;
 int lX=0, lY=1, lZ=0;
-
+float vertices[150];
 int rot=0;
 
 int angulo1 = 0, angulo2 = 0, angulo3 = 0, angulo4 = 0, angulo5 = 0, angulo6 = 0,
@@ -34,6 +34,7 @@ void Keyboard(unsigned char key, int x, int y);
 void SpecKeys(int key, int x, int y);
 void BuildScene();
 void BuildArm();
+void Desenhocaminho();
 void DrawCube(GLfloat centerPosX, GLfloat centerPosY, GLfloat centerPosZ, GLfloat edgeLength);
 double rand_number();
 
@@ -70,7 +71,12 @@ void Display() {
         if(!grab)
             DrawCube(rand_x, 2.6, rand_z, 0.5);
         glPopMatrix();
-
+    
+    glPushMatrix();
+    Desenhocaminho();
+    glPopMatrix();
+    
+    
     glPushMatrix();
     BuildArm();
     glPopMatrix();
@@ -127,34 +133,50 @@ void BuildScene() {
         glScalef(0.5, 2, 0.5);
         glutSolidCube(1.0);
     glPopMatrix();
-    //desenho do caminho da camera
-    glPushMatrix();
-             
-                 
 
-       for(i=-25;i<=25;i++){
-       glBegin(GL_LINES);
-        y=15+2*sin(i*(3.14/4.0));
-        z=sqrt(pow(25,2)-pow(i,2));
-        glVertex3f(i,y,z);  
-        y=15+2*sin((i+1)*(3.14/4.0));
-        z=sqrt(pow(25,2)-pow((i+1),2));
-        glVertex3f(i+1,y,z);
-        glEnd();
-        glBegin(GL_LINES);
-        y=15+2*sin(i*(3.14/4.0));
-        z=-sqrt(pow(25,2)-pow(i,2));
-        glVertex3f(i,y,z);  
-        y=15+2*sin((i+1)*(3.14/4.0));
-        z=-sqrt(pow(25,2)-pow((i+1),2));
-        glVertex3f(i+1,y,z); 
-        glEnd();           
-       }
-
-    glPopMatrix();
     
     glPopMatrix();
 }
+
+/********************************************************************************/
+
+
+void Desenhocaminho(){
+
+    //desenho do caminho da camera
+
+                 
+       int j=0;
+       for(i=-25;i<=25;i++){
+        vertices[j]=i;
+        j++;
+        y=15+2*sin(i*(3.14/4.0));
+        vertices[j]=y;
+        j++;
+        z=-sqrt(pow(25,2)-pow(i,2));
+        vertices[j]=z;
+        j++;
+        }
+       for(i=25;i>=-25;i--){
+        vertices[j]=i;
+        j++;
+        y=15+2*sin(i*(3.14/4.0));
+        vertices[j]=y;
+        j++;
+        z=sqrt(pow(25,2)-pow(i,2));
+        vertices[j]=z;
+        j++;           
+       }
+
+       glEnableClientState(GL_VERTEX_ARRAY);
+            glVertexPointer(3,GL_FLOAT, 3*sizeof(float),vertices);
+            glDrawArrays(GL_LINE_LOOP, 0, 102);
+       glDisableClientState(GL_VERTEX_ARRAY);
+
+}
+
+
+
 
 /******************************************************************/
 
