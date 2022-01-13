@@ -9,11 +9,12 @@
 #define INITIAL_XPOS 0
 #define INITIAL_YPOS 15
 #define INITIAL_ZPOS 25
+#define INITIAL_ZFAR 50
 
 double pi = 22/7;
 
 int proj=0;
-
+double zfar = INITIAL_ZFAR;
 float Xpos=INITIAL_XPOS, Ypos=INITIAL_YPOS, Zpos=INITIAL_ZPOS;
 int Xo=0, Yo=0, Zo=0;
 int Xl=0, Yl=1, Zl=0;
@@ -38,7 +39,6 @@ void DrawCube(GLfloat centerXpos, GLfloat centerYpos, GLfloat centerZpos, GLfloa
 void FollowCurve(int);
 double rand_number(double min, double max);
 
-
 /******************************************************************/
 
 void Display() {
@@ -54,7 +54,7 @@ void Display() {
     if(proj==1) {
         glOrtho(-100, 100, -100, 100, -100, 100);
     } else {
-        gluPerspective(45,1,1,50);
+        gluPerspective(45,1,1,zfar);
     }
 
     glMatrixMode(GL_MODELVIEW);
@@ -359,18 +359,21 @@ void Mouse(int btn, int state) {
         case GLUT_RIGHT_BUTTON:
             if(state == GLUT_DOWN) {
                 proj=0;
-                Xpos=0; Ypos=20; Zpos=20;
+                Xpos=0; Ypos=100; Zpos=0;
                 Xo=0; Yo=0; Zo=0;
-                Xl=0; Yl=1; Zl=0;
+                Xl=0; Yl=0; Zl=1;
+                zfar = 100;
                 glutPostRedisplay();
             }
             break;
         case GLUT_MIDDLE_BUTTON:
             if(state == GLUT_DOWN) {
                 proj=0;
-                Xpos=30; Ypos=0; Zpos=0;
-                Xo=0; Yo=0; Zo=0;
-                Xl=0; Yl=1; Zl=0;
+                Xpos=INITIAL_XPOS, Ypos=INITIAL_YPOS, Zpos=INITIAL_ZPOS;
+                Xo=0, Yo=0, Zo=0;
+                Xl=0, Yl=1, Zl=0;
+                rot=0;
+                zfar = INITIAL_ZFAR;
                 glutPostRedisplay();
             }
             break;
@@ -403,31 +406,24 @@ void Keyboard(unsigned char key) {
         rot-=5;
     } else if(key==27) {
         exit(0);
-    } else if(key=='p') {
-        proj=0;
-        Xpos=INITIAL_XPOS, Ypos=INITIAL_YPOS, Zpos=INITIAL_ZPOS;
-        Xo=0, Yo=0, Zo=0;
-        Xl=0, Yl=1, Zl=0;
-        rot=0;
-    }
-    else if(key=='g') { //tecla g é utilizada para iniciar a trajetória
+    } else if(key=='g') { //tecla g é utilizada para iniciar a trajetória
         pause = !pause;
         glutTimerFunc(0,FollowCurve,0);
     }
 
     //rotações
     // primeira esfera
-    else if(key=='u') {
+    else if(key=='i') {
         angle1 = (angle1 - 5) % 360;
-    } else if(key=='U') {
-        angle1 = (angle1 + 5) % 360;
-    } else if(key=='i') {
-        angle2 = (angle2 - 5) % 360;
     } else if(key=='I') {
-        angle2 = (angle2 + 5) % 360;
+        angle1 = (angle1 + 5) % 360;
     } else if(key=='o') {
-        angle3 = (angle3 - 5) % 360;
+        angle2 = (angle2 - 5) % 360;
     } else if(key=='O') {
+        angle2 = (angle2 + 5) % 360;
+    } else if(key=='p') {
+        angle3 = (angle3 - 5) % 360;
+    } else if(key=='P') {
         angle3 = (angle3 + 5) % 360;
     }
 

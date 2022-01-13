@@ -1,0 +1,36 @@
+Botao esquerdo mouse: projecao ortografica
+Botao direito mouse: projecao pesperctica visualizando a mesa e curva de cima
+Botao meio mouse: reset da camera
+
+Tecla d: muda direcao da camera para +5 em X
+Tecla a: muda direcao da camera para -5 em X
+Tecla w: muda direcao da camera para +5 em Y
+Tecla s: muda direcao da camera para -5 em Y
+Tecla r: rotaciona em +5 a camera
+Tecla R: rotaciona em -5 a camera
+Tecla ESC: finaliza o programa
+Tecla g: percorre a curva
+
+Tecla i: rotaciona a primeira esfera -5 graus em X
+Tecla I: rotaciona a primeira esfera +5 graus em X
+Tecla o: rotaciona a primeira esfera -5 graus em Y
+Tecla O: rotaciona a primeira esfera +5 graus em Y
+Tecla p: rotaciona a primeira esfera -5 graus em Z
+Tecla P: rotaciona a primeira esfera +5 graus em Z
+
+Tecla j: rotaciona a segunda esfera -5 graus em X
+Tecla J: rotaciona a segunda esfera +5 graus em X
+Tecla k: rotaciona a segunda esfera -5 graus em Y
+Tecla K: rotaciona a segunda esfera +5 graus em Y
+Tecla l: rotaciona a segunda esfera -5 graus em Z
+Tecla L: rotaciona a segunda esfera +5 graus em Z
+
+Tecla b: rotaciona a terceira esfera -5 graus em X
+Tecla B: rotaciona a terceira esfera +5 graus em X
+Tecla n: rotaciona a terceira esfera -5 graus em Y
+Tecla N: rotaciona a terceira esfera +5 graus em Y
+Tecla m: rotaciona a terceira esfera -5 graus em Z
+Tecla M: rotaciona a terceira esfera +5 graus em Z
+
+Tecla +: abre a garra
+Tecla -: fecha a garra
