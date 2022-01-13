@@ -11,7 +11,7 @@
 #define INITIAL_ZPOS 25
 #define INITIAL_ZFAR 50
 
-double pi = 22/7;
+double pi = M_PI;
 
 int proj=0;
 double zfar = INITIAL_ZFAR;
@@ -493,8 +493,8 @@ int main(int argc, char **argv) {
     glutCreateWindow("Braco");
 
     glutDisplayFunc(Display);
-    glutMouseFunc(Mouse);
-    glutKeyboardFunc(Keyboard);
+    glutMouseFunc((void*)Mouse);
+    glutKeyboardFunc((void*)Keyboard);
 
     glutMainLoop();
 
