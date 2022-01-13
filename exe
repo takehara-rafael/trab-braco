@@ -1,2 +1,3 @@
 #!/bin/bash
+#need chmod +x
 gcc main.c -o main -lglut -lGL -lGLU -lm && ./main && rm main
