@@ -29,6 +29,9 @@ int pause=1, choice=0;
 
 double rand_x = 0, rand_z = 0;
 
+double matrix_cube[16], matrix_scene[16];
+int k = 0;
+
 void Display();
 void Mouse(int btn, int state);
 void Keyboard(unsigned char key);
@@ -66,9 +69,6 @@ void Display() {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glColor3ub(255,0,255);
-    DrawCube(rand_x, 2.6, rand_z, 0.5);
-
     glPushMatrix();
     BuildScene();
     glPopMatrix();
@@ -76,6 +76,40 @@ void Display() {
     glPushMatrix();
     BuildArm();
     glPopMatrix();
+
+
+    if( rand_x > 0) {
+        if ((matrix_scene[4] > -0.0002) && (matrix_scene[4] < 0)) {
+
+            if (fabs(matrix_scene[6]) > fabs(matrix_cube[6])) {
+                if (fabs(matrix_scene[6] / matrix_cube[6]) < 1.2) {
+                    printf("pegou %d\n\n", k);
+                    k++;
+                }
+            } else if (fabs(matrix_scene[6]) < fabs(matrix_cube[6])) {
+                if (fabs(matrix_cube[6] / matrix_scene[6]) < 1.2) {
+                    printf("pegou %d\n\n", k);
+                    k++;
+                }
+            }
+        }
+    } else {
+        if ((matrix_scene[4] < 0.0002) && (matrix_scene[4] > 0)) {
+
+            if (fabs(matrix_scene[6]) > fabs(matrix_cube[6])) {
+                if (fabs(matrix_scene[6] / matrix_cube[6]) < 1.2) {
+                    printf("pegou %d\n\n", k);
+                    k++;
+                }
+            } else if (fabs(matrix_scene[6]) < fabs(matrix_cube[6])) {
+                if (fabs(matrix_cube[6] / matrix_scene[6]) < 1.2) {
+                    printf("pegou %d\n\n", k);
+                    k++;
+                }
+            }
+        }
+    }
+
 
     glPushMatrix();
     glColor3f(1,0,0);
@@ -233,8 +267,14 @@ void BuildArm() {
     glTranslatef(0.75,0, 0.1);
     glScalef(5,0.5,0.5);
     glutSolidCube(0.25);
+
+    glGetFloatv(GL_MODELVIEW_MATRIX, matrix_scene);
     glPopMatrix();
 
+    glPushMatrix();
+    glColor3ub(255,0,255);
+    DrawCube(rand_x, 2.6, rand_z, 0.5);
+    glPopMatrix();
 }
 
 /******************************************************************/
@@ -296,6 +336,7 @@ void FollowCurve(int timerOn) {
 /******************************************************************/
 
 void DrawCube(GLfloat centerXpos, GLfloat centerYpos, GLfloat centerZpos, GLfloat edgeLength) {
+    /*
     GLfloat halfSideLength = edgeLength * 0.5;
 
     GLfloat vertices[] = {
@@ -341,6 +382,12 @@ void DrawCube(GLfloat centerXpos, GLfloat centerYpos, GLfloat centerZpos, GLfloa
     glVertexPointer(3, GL_FLOAT, 0, vertices);
     glDrawArrays(GL_QUADS, 0, 24);
     glDisableClientState(GL_VERTEX_ARRAY);
+    */
+
+    glTranslatef(centerXpos, centerYpos, centerZpos);
+    glutSolidCube(edgeLength);
+
+    glGetFloatv(GL_MODELVIEW_MATRIX, matrix_cube);
 }
 
 /******************************************************************/
@@ -500,3 +547,4 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
