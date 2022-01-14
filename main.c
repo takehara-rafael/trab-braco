@@ -10,6 +10,11 @@
 #define INITIAL_YPOS 15
 #define INITIAL_ZPOS 25
 #define INITIAL_ZFAR 50
+#define O(y,x) (y + (x<<2))
+
+struct world {
+    GLdouble x,y,z;
+} w;
 
 double pi = M_PI;
 
@@ -25,11 +30,18 @@ int angle1 = 0, angle2 = 0, angle3 = 0, angle4 = 0, angle5 = 0, angle6 = 0, angl
 
 float pos1=0, pos2=0, pos3=0, pos4=0, pos5=0, pos6=0;
 
-int pause=1, choice=0;
+int pause=1, choice=0, grab=0, closed;
+
+GLdouble x_coord = 0, y_coord = 0, z_coord = 0, xx = 0, yy = 0 , zz = 0;
 
 double rand_x = 0, rand_z = 0;
 
-double matrix_cube[16], matrix_scene[16];
+GLdouble matrix_cube[16], matrix_scene[16], proj_matrix[16]; 
+
+GLdouble camViewMatrix[16], invCamViewMatrix[16];
+
+GLint vp[4];
+
 int k = 0;
 
 void Display();
@@ -40,7 +52,10 @@ void BuildArm();
 void DrawPath();
 void DrawCube(GLfloat centerXpos, GLfloat centerYpos, GLfloat centerZpos, GLfloat edgeLength);
 void FollowCurve(int);
+void moveHand(int);
 double rand_number(double min, double max);
+int gluInvertMatrix(const double m[16], double invOut[16]);
+static inline void Matrix4x4MultiplyBy4x4 (GLdouble *src1, GLdouble *src2, struct world *w);
 
 /******************************************************************/
 
@@ -61,9 +76,14 @@ void Display() {
     }
 
     glMatrixMode(GL_MODELVIEW);
+
     glLoadIdentity();
 
     gluLookAt(Xpos, Ypos, Zpos, Xo, Yo, Zo, Xl, Yl, Zl);
+
+    glGetDoublev (GL_MODELVIEW_MATRIX, camViewMatrix);
+
+    gluInvertMatrix(camViewMatrix, invCamViewMatrix);
 
     glRotatef(rot, Xl, Yl, Zl);
 
@@ -77,38 +97,45 @@ void Display() {
     BuildArm();
     glPopMatrix();
 
+      if(abs(w.x) < 0.1 && abs(w.y) < 0.1 && abs(w.z) < 2.5)
+      {
+          grab=1;
+      }  
 
-    if( rand_x > 0) {
-        if ((matrix_scene[4] > -0.0002) && (matrix_scene[4] < 0)) {
+     //printf("(X:%f, Y:%f, Z:%f)", w.x, w.y, w.z);
 
-            if (fabs(matrix_scene[6]) > fabs(matrix_cube[6])) {
-                if (fabs(matrix_scene[6] / matrix_cube[6]) < 1.2) {
-                    printf("pegou %d\n\n", k);
-                    k++;
-                }
-            } else if (fabs(matrix_scene[6]) < fabs(matrix_cube[6])) {
-                if (fabs(matrix_cube[6] / matrix_scene[6]) < 1.2) {
-                    printf("pegou %d\n\n", k);
-                    k++;
-                }
-            }
-        }
-    } else {
-        if ((matrix_scene[4] < 0.0002) && (matrix_scene[4] > 0)) {
 
-            if (fabs(matrix_scene[6]) > fabs(matrix_cube[6])) {
-                if (fabs(matrix_scene[6] / matrix_cube[6]) < 1.2) {
-                    printf("pegou %d\n\n", k);
-                    k++;
-                }
-            } else if (fabs(matrix_scene[6]) < fabs(matrix_cube[6])) {
-                if (fabs(matrix_cube[6] / matrix_scene[6]) < 1.2) {
-                    printf("pegou %d\n\n", k);
-                    k++;
-                }
-            }
-        }
-    }
+    // if( rand_x > 0) {
+    //     if ((matrix_scene[4] > -0.0002) && (matrix_scene[4] < 0)) {
+
+    //         if (fabs(matrix_scene[6]) > fabs(matrix_cube[6])) {
+    //             if (fabs(matrix_scene[6] / matrix_cube[6]) < 1.2) {
+    //                 grab=1;
+    //                 k++;
+    //             }
+    //         } else if (fabs(matrix_scene[6]) < fabs(matrix_cube[6])) {
+    //             if (fabs(matrix_cube[6] / matrix_scene[6]) < 1.2) {
+    //                 grab=1;
+    //                 k++;
+    //             }
+    //         }
+    //     }
+    // } else {
+    //     if ((matrix_scene[4] < 0.0002) && (matrix_scene[4] > 0)) {
+
+    //         if (fabs(matrix_scene[6]) > fabs(matrix_cube[6])) {
+    //             if (fabs(matrix_scene[6] / matrix_cube[6]) < 1.2) {
+    //                 printf("grab %d\n\n", k);
+    //                 k++;
+    //             }
+    //         } else if (fabs(matrix_scene[6]) < fabs(matrix_cube[6])) {
+    //             if (fabs(matrix_cube[6] / matrix_scene[6]) < 1.2) {
+    //                 printf("grab %d\n\n", k);
+    //                 k++;
+    //             }
+    //         }
+    //     }
+    // }
 
 
     glPushMatrix();
@@ -251,29 +278,72 @@ void BuildArm() {
     glRotatef(angle8, 0, 1, 0);
     glRotatef(angle9, 0, 0, 1);
     glutSolidSphere(0.7,20,20);
+
+    //garra
     glColor3f(0,1,0);
     glTranslatef(0.85,0,0);
+    glPushMatrix();
     glScalef(1,1,5);
     glutSolidCube(0.5);
 
+    glGetDoublev(GL_MODELVIEW_MATRIX, matrix_scene);
+    Matrix4x4MultiplyBy4x4(invCamViewMatrix, matrix_scene, &w);
+        glColor3ub(1,0,1);
+        // xx = matrix_scene[0] * xx + matrix_scene[4] * yy + matrix_scene[8] * zz + matrix_scene[12]+7.04;
+        // yy = matrix_scene[1] * xx + matrix_scene[5] * yy + matrix_scene[9] * zz + matrix_scene[13]-8.32;
+        // zz = matrix_scene[2] * xx + matrix_scene[6] * yy + matrix_scene[10] * zz + matrix_scene[14]+28.85;
+        glScalef(1,1,0.2);
+        //DrawCube(w.x,w.y,w.z-6,0.5);
+        glPopMatrix();
+
+    if(grab){
+        glutTimerFunc(0,moveHand,grab);
+        glPushMatrix();
+            glColor3ub(255,0,255);
+            DrawCube(0.5,0,0,0.5);
+        glPopMatrix();
+    }
+        //else{
+        //     glutTimerFunc(0,closeHand,0);
+        //     abriu = !abriu;
+        // }
+
+    //dedos
     glPushMatrix();
+    glColor3f(0,1,0);
     glTranslatef(0,0, pos3);
-    glTranslatef(0.75,0,-0.1);
-    glScalef(5,0.5,0.5);
-    glutSolidCube(0.25);
-    glPopMatrix();
-
-    glTranslatef(0,0, pos6);
-    glTranslatef(0.75,0, 0.1);
-    glScalef(5,0.5,0.5);
-    glutSolidCube(0.25);
-
-    glGetFloatv(GL_MODELVIEW_MATRIX, matrix_scene);
+    glTranslatef(0.75,0,-1);
+    glScalef(4,1,1);
+    glutSolidCube(0.5);
     glPopMatrix();
 
     glPushMatrix();
-    glColor3ub(255,0,255);
-    DrawCube(rand_x, 2.6, rand_z, 0.5);
+    glTranslatef(0,0, pos6);
+    glTranslatef(0.75,0, 1);
+    glScalef(4,1,1);
+    glutSolidCube(0.5);
+    glPopMatrix();
+
+    glPopMatrix();
+
+    glGetDoublev(GL_PROJECTION_MATRIX, proj_matrix);
+    glGetIntegerv(GL_VIEWPORT, vp);
+    glPushMatrix();
+    // if(rand_x>0)
+    //     x_coord = matrix_cube[0] * x_coord + matrix_cube[4] * y_coord + matrix_cube[8] * z_coord + matrix_cube[12]-rand_x;
+    // else
+    //     x_coord = matrix_cube[0] * x_coord + matrix_cube[4] * y_coord + matrix_cube[8] * z_coord + matrix_cube[12]+rand_x;
+    // y_coord = matrix_cube[1] * x_coord + matrix_cube[5] * y_coord + matrix_cube[9] * z_coord + matrix_cube[13]-2.9;
+    // if(rand_z>0)
+    //     z_coord = matrix_cube[2] * x_coord + matrix_cube[6] * y_coord + matrix_cube[10] * z_coord + matrix_cube[14]-rand_z;
+    // else
+    //     z_coord = matrix_cube[2] * x_coord + matrix_cube[6] * y_coord + matrix_cube[10] * z_coord + matrix_cube[14]+rand_z;
+    // DrawCube(rand_x, 2.6, rand_z, 0.5);
+    
+    if(!grab) {
+        glColor3ub(255,0,255);
+        DrawCube(rand_x, 2.6, rand_z, 0.5);
+    }
     glPopMatrix();
 }
 
@@ -335,59 +405,28 @@ void FollowCurve(int timerOn) {
 
 /******************************************************************/
 
+void moveHand(int a) {
+
+        printf("pos6:%f pos3:%f", pos6, pos3);
+
+        if((pos6 - pos3)>=-1) {
+            pos6 -= 0.02;
+            pos3 += 0.02;
+        }
+
+    glutPostRedisplay(); 
+    glutTimerFunc(30000/15,moveHand,0);
+}
+
+/******************************************************************/
+
 void DrawCube(GLfloat centerXpos, GLfloat centerYpos, GLfloat centerZpos, GLfloat edgeLength) {
-    /*
-    GLfloat halfSideLength = edgeLength * 0.5;
-
-    GLfloat vertices[] = {
-
-            //face frontal
-            centerXpos - halfSideLength, centerYpos + halfSideLength, centerZpos + halfSideLength, // superior esquerdo
-            centerXpos + halfSideLength, centerYpos + halfSideLength, centerZpos + halfSideLength, // superior direito
-            centerXpos + halfSideLength, centerYpos - halfSideLength, centerZpos + halfSideLength, // inferior direito
-            centerXpos - halfSideLength, centerYpos - halfSideLength, centerZpos + halfSideLength, // inferior esquerdo
-
-            //face distal
-            centerXpos - halfSideLength, centerYpos + halfSideLength, centerZpos - halfSideLength, // superior esquerdo
-            centerXpos + halfSideLength, centerYpos + halfSideLength, centerZpos - halfSideLength, // superior direito
-            centerXpos + halfSideLength, centerYpos - halfSideLength, centerZpos - halfSideLength, // inferior direito
-            centerXpos - halfSideLength, centerYpos - halfSideLength, centerZpos - halfSideLength, // inferior esquerdo
-
-            //face lateral esquerda
-            centerXpos - halfSideLength, centerYpos + halfSideLength, centerZpos + halfSideLength, // superior esquerdo
-            centerXpos - halfSideLength, centerYpos + halfSideLength, centerZpos - halfSideLength, // superior direito
-            centerXpos - halfSideLength, centerYpos - halfSideLength, centerZpos - halfSideLength, // inferior direito
-            centerXpos - halfSideLength, centerYpos - halfSideLength, centerZpos + halfSideLength, // inferior esquerdo
-
-            //face lateral direita
-            centerXpos + halfSideLength, centerYpos + halfSideLength, centerZpos + halfSideLength, // superior esquerdo
-            centerXpos + halfSideLength, centerYpos + halfSideLength, centerZpos - halfSideLength, // superior direito
-            centerXpos + halfSideLength, centerYpos - halfSideLength, centerZpos - halfSideLength, // inferior direito
-            centerXpos + halfSideLength, centerYpos - halfSideLength, centerZpos + halfSideLength, // inferior esquerdo
-
-            //face superior
-            centerXpos - halfSideLength, centerYpos + halfSideLength, centerZpos + halfSideLength, // superior esquerdo
-            centerXpos - halfSideLength, centerYpos + halfSideLength, centerZpos - halfSideLength, // superior direito
-            centerXpos + halfSideLength, centerYpos + halfSideLength, centerZpos - halfSideLength, // inferior direito
-            centerXpos + halfSideLength, centerYpos + halfSideLength, centerZpos + halfSideLength, // inferior esquerdo
-
-            //face inferior
-            centerXpos - halfSideLength, centerYpos - halfSideLength, centerZpos + halfSideLength, // superior esquerdo
-            centerXpos - halfSideLength, centerYpos - halfSideLength, centerZpos - halfSideLength, // superior direito
-            centerXpos + halfSideLength, centerYpos - halfSideLength, centerZpos - halfSideLength, // inferior direito
-            centerXpos + halfSideLength, centerYpos - halfSideLength, centerZpos + halfSideLength // inferior esquerdo
-    };
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glDrawArrays(GL_QUADS, 0, 24);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    */
 
     glTranslatef(centerXpos, centerYpos, centerZpos);
     glutSolidCube(edgeLength);
 
-    glGetFloatv(GL_MODELVIEW_MATRIX, matrix_cube);
+    glGetDoublev(GL_MODELVIEW_MATRIX, matrix_cube);
+
 }
 
 /******************************************************************/
@@ -506,15 +545,15 @@ void Keyboard(unsigned char key) {
 
     //movimento linear da garra
     else if(key=='+') {
-        if(pos6 - pos3 <= 0.1) {
-            pos3 -= 0.01;
-            pos6 += 0.01;
+        if(pos6 - pos3 < 1) {
+            pos3 -= 0.02;
+            pos6 += 0.02;
         }
     }
     else if(key=='-') {
         if((pos6 - pos3)>0) {
-            pos6 -= 0.01;
-            pos3 += 0.01;
+            pos6 -= 0.02;
+            pos3 += 0.02;
         }
     }
 
@@ -527,8 +566,10 @@ int main(int argc, char **argv) {
 
     srand(time(NULL));
 
-    rand_x = rand_number(-6, 6);
-    rand_z = rand_number(-6, 6);
+    rand_x = rand_number(-4, 4);
+    rand_z = rand_number(-4, 4);
+
+    printf("RAND_X:%lf, RAND_Z:%lf", rand_x, rand_z);
 
     glutInit(&argc, argv);
 
@@ -547,4 +588,142 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
+int gluInvertMatrix(const double m[16], double invOut[16])
+{
+    double inv[16], det;
+    int i;
+
+    inv[0] = m[5]  * m[10] * m[15] - 
+             m[5]  * m[11] * m[14] - 
+             m[9]  * m[6]  * m[15] + 
+             m[9]  * m[7]  * m[14] +
+             m[13] * m[6]  * m[11] - 
+             m[13] * m[7]  * m[10];
+
+    inv[4] = -m[4]  * m[10] * m[15] + 
+              m[4]  * m[11] * m[14] + 
+              m[8]  * m[6]  * m[15] - 
+              m[8]  * m[7]  * m[14] - 
+              m[12] * m[6]  * m[11] + 
+              m[12] * m[7]  * m[10];
+
+    inv[8] = m[4]  * m[9] * m[15] - 
+             m[4]  * m[11] * m[13] - 
+             m[8]  * m[5] * m[15] + 
+             m[8]  * m[7] * m[13] + 
+             m[12] * m[5] * m[11] - 
+             m[12] * m[7] * m[9];
+
+    inv[12] = -m[4]  * m[9] * m[14] + 
+               m[4]  * m[10] * m[13] +
+               m[8]  * m[5] * m[14] - 
+               m[8]  * m[6] * m[13] - 
+               m[12] * m[5] * m[10] + 
+               m[12] * m[6] * m[9];
+
+    inv[1] = -m[1]  * m[10] * m[15] + 
+              m[1]  * m[11] * m[14] + 
+              m[9]  * m[2] * m[15] - 
+              m[9]  * m[3] * m[14] - 
+              m[13] * m[2] * m[11] + 
+              m[13] * m[3] * m[10];
+
+    inv[5] = m[0]  * m[10] * m[15] - 
+             m[0]  * m[11] * m[14] - 
+             m[8]  * m[2] * m[15] + 
+             m[8]  * m[3] * m[14] + 
+             m[12] * m[2] * m[11] - 
+             m[12] * m[3] * m[10];
+
+    inv[9] = -m[0]  * m[9] * m[15] + 
+              m[0]  * m[11] * m[13] + 
+              m[8]  * m[1] * m[15] - 
+              m[8]  * m[3] * m[13] - 
+              m[12] * m[1] * m[11] + 
+              m[12] * m[3] * m[9];
+
+    inv[13] = m[0]  * m[9] * m[14] - 
+              m[0]  * m[10] * m[13] - 
+              m[8]  * m[1] * m[14] + 
+              m[8]  * m[2] * m[13] + 
+              m[12] * m[1] * m[10] - 
+              m[12] * m[2] * m[9];
+
+    inv[2] = m[1]  * m[6] * m[15] - 
+             m[1]  * m[7] * m[14] - 
+             m[5]  * m[2] * m[15] + 
+             m[5]  * m[3] * m[14] + 
+             m[13] * m[2] * m[7] - 
+             m[13] * m[3] * m[6];
+
+    inv[6] = -m[0]  * m[6] * m[15] + 
+              m[0]  * m[7] * m[14] + 
+              m[4]  * m[2] * m[15] - 
+              m[4]  * m[3] * m[14] - 
+              m[12] * m[2] * m[7] + 
+              m[12] * m[3] * m[6];
+
+    inv[10] = m[0]  * m[5] * m[15] - 
+              m[0]  * m[7] * m[13] - 
+              m[4]  * m[1] * m[15] + 
+              m[4]  * m[3] * m[13] + 
+              m[12] * m[1] * m[7] - 
+              m[12] * m[3] * m[5];
+
+    inv[14] = -m[0]  * m[5] * m[14] + 
+               m[0]  * m[6] * m[13] + 
+               m[4]  * m[1] * m[14] - 
+               m[4]  * m[2] * m[13] - 
+               m[12] * m[1] * m[6] + 
+               m[12] * m[2] * m[5];
+
+    inv[3] = -m[1] * m[6] * m[11] + 
+              m[1] * m[7] * m[10] + 
+              m[5] * m[2] * m[11] - 
+              m[5] * m[3] * m[10] - 
+              m[9] * m[2] * m[7] + 
+              m[9] * m[3] * m[6];
+
+    inv[7] = m[0] * m[6] * m[11] - 
+             m[0] * m[7] * m[10] - 
+             m[4] * m[2] * m[11] + 
+             m[4] * m[3] * m[10] + 
+             m[8] * m[2] * m[7] - 
+             m[8] * m[3] * m[6];
+
+    inv[11] = -m[0] * m[5] * m[11] + 
+               m[0] * m[7] * m[9] + 
+               m[4] * m[1] * m[11] - 
+               m[4] * m[3] * m[9] - 
+               m[8] * m[1] * m[7] + 
+               m[8] * m[3] * m[5];
+
+    inv[15] = m[0] * m[5] * m[10] - 
+              m[0] * m[6] * m[9] - 
+              m[4] * m[1] * m[10] + 
+              m[4] * m[2] * m[9] + 
+              m[8] * m[1] * m[6] - 
+              m[8] * m[2] * m[5];
+
+    det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
+
+    if (det == 0)
+        return -1;
+
+    det = 1.0 / det;
+
+    for (i = 0; i < 16; i++)
+        invOut[i] = inv[i] * det;
+
+    return 1;
+}
+
+static inline void Matrix4x4MultiplyBy4x4 (GLdouble *src1, GLdouble *src2, struct world *w)
+{
+  
+    w->x = (*(src1+O(1,0)) * *(src2+O(0,1))) + (*(src1+O(1,1)) * *(src2+O(1,1))) + (*(src1+O(1,2)) * *(src2+O(2,1))) + (*(src1+O(1,3)) * *(src2+O(3,1))); 
+    w->y = (*(src1+O(1,0)) * *(src2+O(0,2))) + (*(src1+O(1,1)) * *(src2+O(1,2))) + (*(src1+O(1,2)) * *(src2+O(2,2))) + (*(src1+O(1,3)) * *(src2+O(3,2))); 
+    w->z = (*(src1+O(1,0)) * *(src2+O(0,3))) + (*(src1+O(1,1)) * *(src2+O(1,3))) + (*(src1+O(1,2)) * *(src2+O(2,3))) + (*(src1+O(1,3)) * *(src2+O(3,3)));
+};
 
