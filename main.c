@@ -42,8 +42,6 @@ GLdouble camViewMatrix[16], invCamViewMatrix[16];
 
 GLint vp[4];
 
-int k = 0;
-
 void Display();
 void Mouse(int btn, int state);
 void Keyboard(unsigned char key);
@@ -97,45 +95,25 @@ void Display() {
     BuildArm();
     glPopMatrix();
 
-      if(abs(w.x) < 0.1 && abs(w.y) < 0.1 && abs(w.z) < 2.5)
-      {
-          grab=1;
-      }  
+    printf("%.16f %.16f %.16f\n", w.x, w.y, w.z);
+    if( (rand_x < 0) && (rand_z > 0) ) {
+        if( ( fabs(w.x)<0.4 && fabs(w.x)>0.3) && ( (fabs(w.y)<fabs(0.00000005)) && (fabs(w.y)>fabs(0.000000035))) && (w.z>3.0 && w.z<3.5) ) {
+            grab=1;
+        }
+    } else if( (rand_x > 0) && (rand_z > 0) ) {
+        if( ( fabs(w.x)<0.4 && fabs(w.x)>0.3) && ( (fabs(w.y)<fabs(0.00000005)) && (fabs(w.y)>fabs(0.00000004))) && (w.z>2.5 && w.z<3.0) ) {
+            grab=1;
+        }
+    } else if( (rand_x < 0) && (rand_z < 0) ) {
+        if( ( fabs(w.x)<0.5 && fabs(w.x)>0.4) && ( (fabs(w.y)<fabs(0.00000008)) && (fabs(w.y)>fabs(0.00000003))) && (w.z>3.0 && w.z<3.5) ) {
+            grab=1;
+        }
+    } else if( (rand_x > 0) && (rand_z < 0) ) {
+        if( ( fabs(w.x)<0.5 && fabs(w.x)>0.4) && ( (fabs(w.y)<fabs(0.00000005)) && (fabs(w.y)>fabs(0.00000001))) && (w.z>3.0 && w.z<3.5) ) {
+            grab=1;
+        }
+    }
 
-     //printf("(X:%f, Y:%f, Z:%f)", w.x, w.y, w.z);
-
-
-    // if( rand_x > 0) {
-    //     if ((matrix_scene[4] > -0.0002) && (matrix_scene[4] < 0)) {
-
-    //         if (fabs(matrix_scene[6]) > fabs(matrix_cube[6])) {
-    //             if (fabs(matrix_scene[6] / matrix_cube[6]) < 1.2) {
-    //                 grab=1;
-    //                 k++;
-    //             }
-    //         } else if (fabs(matrix_scene[6]) < fabs(matrix_cube[6])) {
-    //             if (fabs(matrix_cube[6] / matrix_scene[6]) < 1.2) {
-    //                 grab=1;
-    //                 k++;
-    //             }
-    //         }
-    //     }
-    // } else {
-    //     if ((matrix_scene[4] < 0.0002) && (matrix_scene[4] > 0)) {
-
-    //         if (fabs(matrix_scene[6]) > fabs(matrix_cube[6])) {
-    //             if (fabs(matrix_scene[6] / matrix_cube[6]) < 1.2) {
-    //                 printf("grab %d\n\n", k);
-    //                 k++;
-    //             }
-    //         } else if (fabs(matrix_scene[6]) < fabs(matrix_cube[6])) {
-    //             if (fabs(matrix_cube[6] / matrix_scene[6]) < 1.2) {
-    //                 printf("grab %d\n\n", k);
-    //                 k++;
-    //             }
-    //         }
-    //     }
-    // }
 
 
     glPushMatrix();
@@ -198,8 +176,7 @@ void DrawPath() {
 
     //desenho do caminho da camera
     int j=0;
-    int i;
-    for(i=-INITIAL_ZPOS; i<=INITIAL_ZPOS; i++) {
+    for(int i=-INITIAL_ZPOS; i<=INITIAL_ZPOS; i++) {
         vertices[j] = i;
 
         j++;
@@ -210,7 +187,7 @@ void DrawPath() {
 
         j++;
     }
-    for(i=INITIAL_ZPOS; i>=-INITIAL_ZPOS; i--) {
+    for(int i=INITIAL_ZPOS; i>=-INITIAL_ZPOS; i--) {
         vertices[j] = i;
 
         j++;
@@ -288,25 +265,17 @@ void BuildArm() {
 
     glGetDoublev(GL_MODELVIEW_MATRIX, matrix_scene);
     Matrix4x4MultiplyBy4x4(invCamViewMatrix, matrix_scene, &w);
-        glColor3ub(1,0,1);
-        // xx = matrix_scene[0] * xx + matrix_scene[4] * yy + matrix_scene[8] * zz + matrix_scene[12]+7.04;
-        // yy = matrix_scene[1] * xx + matrix_scene[5] * yy + matrix_scene[9] * zz + matrix_scene[13]-8.32;
-        // zz = matrix_scene[2] * xx + matrix_scene[6] * yy + matrix_scene[10] * zz + matrix_scene[14]+28.85;
-        glScalef(1,1,0.2);
-        //DrawCube(w.x,w.y,w.z-6,0.5);
-        glPopMatrix();
+    glColor3ub(1,0,1);
+    glScalef(1,1,0.2);
+    glPopMatrix();
 
-    if(grab){
+    if(grab) {
         glutTimerFunc(0,moveHand,grab);
         glPushMatrix();
             glColor3ub(255,0,255);
             DrawCube(0.5,0,0,0.5);
         glPopMatrix();
     }
-        //else{
-        //     glutTimerFunc(0,closeHand,0);
-        //     abriu = !abriu;
-        // }
 
     //dedos
     glPushMatrix();
@@ -329,16 +298,6 @@ void BuildArm() {
     glGetDoublev(GL_PROJECTION_MATRIX, proj_matrix);
     glGetIntegerv(GL_VIEWPORT, vp);
     glPushMatrix();
-    // if(rand_x>0)
-    //     x_coord = matrix_cube[0] * x_coord + matrix_cube[4] * y_coord + matrix_cube[8] * z_coord + matrix_cube[12]-rand_x;
-    // else
-    //     x_coord = matrix_cube[0] * x_coord + matrix_cube[4] * y_coord + matrix_cube[8] * z_coord + matrix_cube[12]+rand_x;
-    // y_coord = matrix_cube[1] * x_coord + matrix_cube[5] * y_coord + matrix_cube[9] * z_coord + matrix_cube[13]-2.9;
-    // if(rand_z>0)
-    //     z_coord = matrix_cube[2] * x_coord + matrix_cube[6] * y_coord + matrix_cube[10] * z_coord + matrix_cube[14]-rand_z;
-    // else
-    //     z_coord = matrix_cube[2] * x_coord + matrix_cube[6] * y_coord + matrix_cube[10] * z_coord + matrix_cube[14]+rand_z;
-    // DrawCube(rand_x, 2.6, rand_z, 0.5);
     
     if(!grab) {
         glColor3ub(255,0,255);
@@ -407,12 +366,12 @@ void FollowCurve(int timerOn) {
 
 void moveHand(int a) {
 
-        printf("pos6:%f pos3:%f", pos6, pos3);
+    //printf("pos6:%f pos3:%f", pos6, pos3);
 
-        if((pos6 - pos3)>=-1) {
-            pos6 -= 0.02;
-            pos3 += 0.02;
-        }
+    if((pos6 - pos3)>=-1) {
+        pos6 -= 0.02;
+        pos3 += 0.02;
+    }
 
     glutPostRedisplay(); 
     glutTimerFunc(30000/15,moveHand,0);
@@ -545,13 +504,13 @@ void Keyboard(unsigned char key) {
 
     //movimento linear da garra
     else if(key=='+') {
-        if(pos6 - pos3 < 1) {
+        if((pos6 - pos3) < 1) {
             pos3 -= 0.02;
             pos6 += 0.02;
         }
     }
     else if(key=='-') {
-        if((pos6 - pos3)>0) {
+        if((pos6 - pos3)>-0.5) {
             pos6 -= 0.02;
             pos3 += 0.02;
         }
@@ -568,8 +527,7 @@ int main(int argc, char **argv) {
 
     rand_x = rand_number(-4, 4);
     rand_z = rand_number(-4, 4);
-
-    printf("RAND_X:%lf, RAND_Z:%lf", rand_x, rand_z);
+    printf("rand_x: %f, rand_z: %f\n", rand_x, rand_z);
 
     glutInit(&argc, argv);
 
@@ -589,8 +547,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-int gluInvertMatrix(const double m[16], double invOut[16])
-{
+int gluInvertMatrix(const double m[16], double invOut[16]) {
     double inv[16], det;
     int i;
 
@@ -708,22 +665,22 @@ int gluInvertMatrix(const double m[16], double invOut[16])
 
     det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
 
-    if (det == 0)
+    if (det == 0) {
         return -1;
-
+    }
     det = 1.0 / det;
 
-    for (i = 0; i < 16; i++)
+    for (i = 0; i < 16; i++) {
         invOut[i] = inv[i] * det;
-
+    }
     return 1;
 }
 
-static inline void Matrix4x4MultiplyBy4x4 (GLdouble *src1, GLdouble *src2, struct world *w)
-{
+static inline void Matrix4x4MultiplyBy4x4 (GLdouble *src1, GLdouble *src2, struct world *w) {
   
     w->x = (*(src1+O(1,0)) * *(src2+O(0,1))) + (*(src1+O(1,1)) * *(src2+O(1,1))) + (*(src1+O(1,2)) * *(src2+O(2,1))) + (*(src1+O(1,3)) * *(src2+O(3,1))); 
     w->y = (*(src1+O(1,0)) * *(src2+O(0,2))) + (*(src1+O(1,1)) * *(src2+O(1,2))) + (*(src1+O(1,2)) * *(src2+O(2,2))) + (*(src1+O(1,3)) * *(src2+O(3,2))); 
     w->z = (*(src1+O(1,0)) * *(src2+O(0,3))) + (*(src1+O(1,1)) * *(src2+O(1,3))) + (*(src1+O(1,2)) * *(src2+O(2,3))) + (*(src1+O(1,3)) * *(src2+O(3,3)));
 };
+
 
