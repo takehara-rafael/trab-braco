@@ -95,7 +95,7 @@ void Display() {
     BuildArm();
     glPopMatrix();
 
-    printf("%.16f %.16f %.16f\n", w.x, w.y, w.z);
+//    printf("%.16f %.16f %.16f\n", w.x, w.y, w.z);
     if( (rand_x < 0) && (rand_z > 0) ) {
         if( ( fabs(w.x)<0.4 && fabs(w.x)>0.3) && ( (fabs(w.y)<fabs(0.00000005)) && (fabs(w.y)>fabs(0.000000035))) && (w.z>3.0 && w.z<3.5) ) {
             grab=1;
@@ -367,14 +367,15 @@ void FollowCurve(int timerOn) {
 void moveHand(int a) {
 
     //printf("pos6:%f pos3:%f", pos6, pos3);
+    if(grab) {
+        if ((pos6 - pos3) >= -1) {
+            pos6 -= 0.02;
+            pos3 += 0.02;
+        }
 
-    if((pos6 - pos3)>=-1) {
-        pos6 -= 0.02;
-        pos3 += 0.02;
+        glutPostRedisplay();
+        glutTimerFunc(30000 / 15, moveHand, 0);
     }
-
-    glutPostRedisplay(); 
-    glutTimerFunc(30000/15,moveHand,0);
 }
 
 /******************************************************************/
@@ -454,6 +455,12 @@ void Keyboard(unsigned char key) {
     } else if(key=='g') { //tecla g é utilizada para iniciar a trajetória
         pause = !pause;
         glutTimerFunc(0,FollowCurve,0);
+    } else if(key=='z') {
+        rand_x = rand_number(-4, 4);
+        rand_z = rand_number(-4, 4);
+        printf("rand_x: %f, rand_z: %f\n", rand_x, rand_z);
+    } else if(key=='x') {
+        grab = 0;
     }
 
     //rotações

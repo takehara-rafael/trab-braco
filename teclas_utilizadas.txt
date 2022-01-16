@@ -10,6 +10,8 @@ Tecla r: rotaciona em +5 a camera
 Tecla R: rotaciona em -5 a camera
 Tecla ESC: finaliza o programa
 Tecla g: percorre a curva
+Tecla z: muda a posição do cubo para uma nova posição aleatória
+Tecla x: faz a garra soltar o cubo
 
 Tecla i: rotaciona a primeira esfera -5 graus em X
 Tecla I: rotaciona a primeira esfera +5 graus em X
@@ -34,3 +36,4 @@ Tecla M: rotaciona a terceira esfera +5 graus em Z
 
 Tecla +: abre a garra
 Tecla -: fecha a garra
+
