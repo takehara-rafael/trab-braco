@@ -102,29 +102,14 @@ void Display() {
     BuildArm();
     glPopMatrix();
 
-    if((pos6 - pos3) < (-0.3)) {
-        if ((rand_x < 0) && (rand_z > 0)) {
-            if ((fabs(w.x) < 0.4 && fabs(w.x) > 0.3) &&
-                ((fabs(w.y) < fabs(0.00000005)) && (fabs(w.y) > fabs(0.000000035))) && (w.z > 3.0 && w.z < 3.5)) {
-                grab = 1;
-            }
-        } else if ((rand_x > 0) && (rand_z > 0)) {
-            if ((fabs(w.x) < 0.4 && fabs(w.x) > 0.3) &&
-                ((fabs(w.y) < fabs(0.00000005)) && (fabs(w.y) > fabs(0.00000004))) && (w.z > 2.5 && w.z < 3.0)) {
-                grab = 1;
-            }
-        } else if ((rand_x < 0) && (rand_z < 0)) {
-            if ((fabs(w.x) < 0.5 && fabs(w.x) > 0.4) &&
-                ((fabs(w.y) < fabs(0.00000008)) && (fabs(w.y) > fabs(0.00000003))) && (w.z > 3.0 && w.z < 3.5)) {
-                grab = 1;
-            }
-        } else if ((rand_x > 0) && (rand_z < 0)) {
-            if ((fabs(w.x) < 0.5 && fabs(w.x) > 0.4) &&
-                ((fabs(w.y) < fabs(0.00000005)) && (fabs(w.y) > fabs(0.00000001))) && (w.z > 3.0 && w.z < 3.5)) {
+        if((pos6 - pos3) < (-0.3)) {
+            if (
+                (((fabs(w.x) < fabs(rand_x)+0.5)) && (fabs(w.x) > fabs(rand_x)-0.5)) &&
+                ((fabs(w.y) < fabs(3)) && (fabs(w.y) > fabs(2.2))) &&
+                (((fabs(w.z) < fabs(rand_z)+0.5)) && (fabs(w.z) > fabs(rand_z)-0.5))) {
                 grab = 1;
             }
         }
-    }
 
 
     glPushMatrix();
@@ -743,10 +728,9 @@ int gluInvertMatrix(const double m[16], double invOut[16]) {
 }
 
 static inline void Matrix4x4MultiplyBy4x4 (GLdouble *src1, GLdouble *src2, struct world *w) {
-  
-    w->x = (*(src1+O(1,0)) * *(src2+O(0,1))) + (*(src1+O(1,1)) * *(src2+O(1,1))) + (*(src1+O(1,2)) * *(src2+O(2,1))) + (*(src1+O(1,3)) * *(src2+O(3,1))); 
-    w->y = (*(src1+O(1,0)) * *(src2+O(0,2))) + (*(src1+O(1,1)) * *(src2+O(1,2))) + (*(src1+O(1,2)) * *(src2+O(2,2))) + (*(src1+O(1,3)) * *(src2+O(3,2))); 
-    w->z = (*(src1+O(1,0)) * *(src2+O(0,3))) + (*(src1+O(1,1)) * *(src2+O(1,3))) + (*(src1+O(1,2)) * *(src2+O(2,3))) + (*(src1+O(1,3)) * *(src2+O(3,3)));
+w->x = (*(src1+O(0,0)) * *(src2+O(0,3))) + (*(src1+O(0,1)) * *(src2+O(1,3))) + (*(src1+O(0,2)) * *(src2+O(2,3))) + (*(src1+O(0,3)) * *(src2+O(3,3))); 
+w->y = (*(src1+O(1,0)) * *(src2+O(0,3))) + (*(src1+O(1,1)) * *(src2+O(1,3))) + (*(src1+O(1,2)) * *(src2+O(2,3))) + (*(src1+O(1,3)) * *(src2+O(3,3))); 
+w->z = (*(src1+O(2,0)) * *(src2+O(0,3))) + (*(src1+O(2,1)) * *(src2+O(1,3))) + (*(src1+O(2,2)) * *(src2+O(2,3))) + (*(src1+O(2,3)) * *(src2+O(3,3))); 
 };
 
 
