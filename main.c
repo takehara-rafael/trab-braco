@@ -22,7 +22,7 @@ Integrantes:
 
 struct world {
     GLdouble x,y,z;
-} w;
+} w, elo2, esf2, elo3, esf3;
 
 double pi = M_PI;
 
@@ -103,12 +103,12 @@ void Display() {
     glPopMatrix();
 
         if((pos6 - pos3) < (-0.3)) {
-            if (
-                (((fabs(w.x) < fabs(rand_x)+0.5)) && (fabs(w.x) > fabs(rand_x)-0.5)) &&
-                ((fabs(w.y) < fabs(3)) && (fabs(w.y) > fabs(2.2))) &&
-                (((fabs(w.z) < fabs(rand_z)+0.5)) && (fabs(w.z) > fabs(rand_z)-0.5))) {
-                grab = 1;
-            }
+                if (
+                    (w.x < rand_x+0.5 && w.x > rand_x-0.5) &&
+                    (w.y < 3 && w.y > 2.2) &&
+                    (w.z < rand_z+0.5 && w.z > rand_z-0.5)) {
+                    grab = 1;
+                }
         }
 
 
