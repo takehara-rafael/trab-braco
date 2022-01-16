@@ -44,7 +44,7 @@ double rand_x = 0, rand_z = 0;
 
 GLdouble matrix_cube[16], matrix_scene[16], proj_matrix[16]; 
 
-GLdouble camViewMatrix[16], invCamViewMatrix[16], invProjMatrix[16];
+GLdouble camViewMatrix[16], invCamViewMatrix[16];
 
 GLint vp[4];
 
@@ -60,7 +60,6 @@ void moveHand(int);
 double rand_number(double min, double max);
 int gluInvertMatrix(const double m[16], double invOut[16]);
 static inline void Matrix4x4MultiplyBy4x4 (GLdouble *src1, GLdouble *src2, struct world *w);
-static inline void Matrix4x4Multiply4x4 (GLdouble *src1, GLdouble *src2, GLdouble *dest);
 void RandomMovement(int);
 
 /******************************************************************/
@@ -90,6 +89,7 @@ void Display() {
     glRotatef(rot, Xl, Yl, Zl);
 
     glGetDoublev (GL_MODELVIEW_MATRIX, camViewMatrix);
+
     gluInvertMatrix(camViewMatrix, invCamViewMatrix);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -268,6 +268,7 @@ void BuildArm() {
     if(grab) {
         glutTimerFunc(0,moveHand,grab);
         glPushMatrix();
+            glScalef(1.5,1.5,1.5);
             glColor3ub(255,0,255);
             DrawCube(0.5,0,0,0.5);
         glPopMatrix();
@@ -421,8 +422,9 @@ void RandomMovement(int timerOn) {
                 break;
         }
 
+
         glutPostRedisplay();
-        glutTimerFunc(2000/15, RandomMovement, 0);
+        glutTimerFunc(10, RandomMovement, 0);
     }
 
 }
@@ -733,24 +735,5 @@ w->y = (*(src1+O(1,0)) * *(src2+O(0,3))) + (*(src1+O(1,1)) * *(src2+O(1,3))) + (
 w->z = (*(src1+O(2,0)) * *(src2+O(0,3))) + (*(src1+O(2,1)) * *(src2+O(1,3))) + (*(src1+O(2,2)) * *(src2+O(2,3))) + (*(src1+O(2,3)) * *(src2+O(3,3))); 
 };
 
-static inline void Matrix4x4Multiply4x4 (GLdouble *src1, GLdouble *src2, GLdouble *dest)
-{
-    *(dest+O(0,0)) = (*(src1+O(0,0)) * *(src2+O(0,0))) + (*(src1+O(0,1)) * *(src2+O(1,0))) + (*(src1+O(0,2)) * *(src2+O(2,0))) + (*(src1+O(0,3)) * *(src2+O(3,0))); 
-    *(dest+O(0,1)) = (*(src1+O(0,0)) * *(src2+O(0,1))) + (*(src1+O(0,1)) * *(src2+O(1,1))) + (*(src1+O(0,2)) * *(src2+O(2,1))) + (*(src1+O(0,3)) * *(src2+O(3,1))); 
-    *(dest+O(0,2)) = (*(src1+O(0,0)) * *(src2+O(0,2))) + (*(src1+O(0,1)) * *(src2+O(1,2))) + (*(src1+O(0,2)) * *(src2+O(2,2))) + (*(src1+O(0,3)) * *(src2+O(3,2))); 
-    *(dest+O(0,3)) = (*(src1+O(0,0)) * *(src2+O(0,3))) + (*(src1+O(0,1)) * *(src2+O(1,3))) + (*(src1+O(0,2)) * *(src2+O(2,3))) + (*(src1+O(0,3)) * *(src2+O(3,3))); 
-    *(dest+O(1,0)) = (*(src1+O(1,0)) * *(src2+O(0,0))) + (*(src1+O(1,1)) * *(src2+O(1,0))) + (*(src1+O(1,2)) * *(src2+O(2,0))) + (*(src1+O(1,3)) * *(src2+O(3,0))); 
-    *(dest+O(1,1)) = (*(src1+O(1,0)) * *(src2+O(0,1))) + (*(src1+O(1,1)) * *(src2+O(1,1))) + (*(src1+O(1,2)) * *(src2+O(2,1))) + (*(src1+O(1,3)) * *(src2+O(3,1))); 
-    *(dest+O(1,2)) = (*(src1+O(1,0)) * *(src2+O(0,2))) + (*(src1+O(1,1)) * *(src2+O(1,2))) + (*(src1+O(1,2)) * *(src2+O(2,2))) + (*(src1+O(1,3)) * *(src2+O(3,2))); 
-    *(dest+O(1,3)) = (*(src1+O(1,0)) * *(src2+O(0,3))) + (*(src1+O(1,1)) * *(src2+O(1,3))) + (*(src1+O(1,2)) * *(src2+O(2,3))) + (*(src1+O(1,3)) * *(src2+O(3,3))); 
-    *(dest+O(2,0)) = (*(src1+O(2,0)) * *(src2+O(0,0))) + (*(src1+O(2,1)) * *(src2+O(1,0))) + (*(src1+O(2,2)) * *(src2+O(2,0))) + (*(src1+O(2,3)) * *(src2+O(3,0))); 
-    *(dest+O(2,1)) = (*(src1+O(2,0)) * *(src2+O(0,1))) + (*(src1+O(2,1)) * *(src2+O(1,1))) + (*(src1+O(2,2)) * *(src2+O(2,1))) + (*(src1+O(2,3)) * *(src2+O(3,1))); 
-    *(dest+O(2,2)) = (*(src1+O(2,0)) * *(src2+O(0,2))) + (*(src1+O(2,1)) * *(src2+O(1,2))) + (*(src1+O(2,2)) * *(src2+O(2,2))) + (*(src1+O(2,3)) * *(src2+O(3,2))); 
-    *(dest+O(2,3)) = (*(src1+O(2,0)) * *(src2+O(0,3))) + (*(src1+O(2,1)) * *(src2+O(1,3))) + (*(src1+O(2,2)) * *(src2+O(2,3))) + (*(src1+O(2,3)) * *(src2+O(3,3))); 
-    *(dest+O(3,0)) = (*(src1+O(3,0)) * *(src2+O(0,0))) + (*(src1+O(3,1)) * *(src2+O(1,0))) + (*(src1+O(3,2)) * *(src2+O(2,0))) + (*(src1+O(3,3)) * *(src2+O(3,0))); 
-    *(dest+O(3,1)) = (*(src1+O(3,0)) * *(src2+O(0,1))) + (*(src1+O(3,1)) * *(src2+O(1,1))) + (*(src1+O(3,2)) * *(src2+O(2,1))) + (*(src1+O(3,3)) * *(src2+O(3,1))); 
-    *(dest+O(3,2)) = (*(src1+O(3,0)) * *(src2+O(0,2))) + (*(src1+O(3,1)) * *(src2+O(1,2))) + (*(src1+O(3,2)) * *(src2+O(2,2))) + (*(src1+O(3,3)) * *(src2+O(3,2))); 
-    *(dest+O(3,3)) = (*(src1+O(3,0)) * *(src2+O(0,3))) + (*(src1+O(3,1)) * *(src2+O(1,3))) + (*(src1+O(3,2)) * *(src2+O(2,3))) + (*(src1+O(3,3)) * *(src2+O(3,3))); 
-};
 
 
