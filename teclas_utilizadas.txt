@@ -12,6 +12,7 @@ Tecla ESC: finaliza o programa
 Tecla g: percorre a curva
 Tecla z: muda a posição do cubo para uma nova posição aleatória
 Tecla x: faz a garra soltar o cubo
+Tecla .: faz a garra realizar movimentos aleatórios
 
 Tecla i: rotaciona a primeira esfera -5 graus em X
 Tecla I: rotaciona a primeira esfera +5 graus em X

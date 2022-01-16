@@ -1,3 +1,11 @@
+/*
+Integrantes:
+    André Antunes Marques
+    Gabriel Rücker
+    Marcos Mendonça Vilela
+    Rafael Yukio Takehara Carvalho
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -28,11 +36,9 @@ int rot=0;
 
 int angle1 = 0, angle2 = 0, angle3 = 0, angle4 = 0, angle5 = 0, angle6 = 0, angle7 = 0, angle8 = 0, angle9 = 0;
 
-float pos1=0, pos2=0, pos3=0, pos4=0, pos5=0, pos6=0;
+float pos3=0, pos6=0;
 
-int pause=1, choice=0, grab=0, closed;
-
-GLdouble x_coord = 0, y_coord = 0, z_coord = 0, xx = 0, yy = 0 , zz = 0;
+int pause=1, choice=0, grab=0, rMove=0;
 
 double rand_x = 0, rand_z = 0;
 
@@ -54,6 +60,7 @@ void moveHand(int);
 double rand_number(double min, double max);
 int gluInvertMatrix(const double m[16], double invOut[16]);
 static inline void Matrix4x4MultiplyBy4x4 (GLdouble *src1, GLdouble *src2, struct world *w);
+void RandomMovement(int);
 
 /******************************************************************/
 
@@ -95,25 +102,29 @@ void Display() {
     BuildArm();
     glPopMatrix();
 
-//    printf("%.16f %.16f %.16f\n", w.x, w.y, w.z);
-    if( (rand_x < 0) && (rand_z > 0) ) {
-        if( ( fabs(w.x)<0.4 && fabs(w.x)>0.3) && ( (fabs(w.y)<fabs(0.00000005)) && (fabs(w.y)>fabs(0.000000035))) && (w.z>3.0 && w.z<3.5) ) {
-            grab=1;
-        }
-    } else if( (rand_x > 0) && (rand_z > 0) ) {
-        if( ( fabs(w.x)<0.4 && fabs(w.x)>0.3) && ( (fabs(w.y)<fabs(0.00000005)) && (fabs(w.y)>fabs(0.00000004))) && (w.z>2.5 && w.z<3.0) ) {
-            grab=1;
-        }
-    } else if( (rand_x < 0) && (rand_z < 0) ) {
-        if( ( fabs(w.x)<0.5 && fabs(w.x)>0.4) && ( (fabs(w.y)<fabs(0.00000008)) && (fabs(w.y)>fabs(0.00000003))) && (w.z>3.0 && w.z<3.5) ) {
-            grab=1;
-        }
-    } else if( (rand_x > 0) && (rand_z < 0) ) {
-        if( ( fabs(w.x)<0.5 && fabs(w.x)>0.4) && ( (fabs(w.y)<fabs(0.00000005)) && (fabs(w.y)>fabs(0.00000001))) && (w.z>3.0 && w.z<3.5) ) {
-            grab=1;
+    if((pos6 - pos3) < (-0.3)) {
+        if ((rand_x < 0) && (rand_z > 0)) {
+            if ((fabs(w.x) < 0.4 && fabs(w.x) > 0.3) &&
+                ((fabs(w.y) < fabs(0.00000005)) && (fabs(w.y) > fabs(0.000000035))) && (w.z > 3.0 && w.z < 3.5)) {
+                grab = 1;
+            }
+        } else if ((rand_x > 0) && (rand_z > 0)) {
+            if ((fabs(w.x) < 0.4 && fabs(w.x) > 0.3) &&
+                ((fabs(w.y) < fabs(0.00000005)) && (fabs(w.y) > fabs(0.00000004))) && (w.z > 2.5 && w.z < 3.0)) {
+                grab = 1;
+            }
+        } else if ((rand_x < 0) && (rand_z < 0)) {
+            if ((fabs(w.x) < 0.5 && fabs(w.x) > 0.4) &&
+                ((fabs(w.y) < fabs(0.00000008)) && (fabs(w.y) > fabs(0.00000003))) && (w.z > 3.0 && w.z < 3.5)) {
+                grab = 1;
+            }
+        } else if ((rand_x > 0) && (rand_z < 0)) {
+            if ((fabs(w.x) < 0.5 && fabs(w.x) > 0.4) &&
+                ((fabs(w.y) < fabs(0.00000005)) && (fabs(w.y) > fabs(0.00000001))) && (w.z > 3.0 && w.z < 3.5)) {
+                grab = 1;
+            }
         }
     }
-
 
 
     glPushMatrix();
@@ -366,7 +377,6 @@ void FollowCurve(int timerOn) {
 
 void moveHand(int a) {
 
-    //printf("pos6:%f pos3:%f", pos6, pos3);
     if(grab) {
         if ((pos6 - pos3) >= -1) {
             pos6 -= 0.02;
@@ -386,6 +396,49 @@ void DrawCube(GLfloat centerXpos, GLfloat centerYpos, GLfloat centerZpos, GLfloa
     glutSolidCube(edgeLength);
 
     glGetDoublev(GL_MODELVIEW_MATRIX, matrix_cube);
+
+}
+
+/******************************************************************/
+
+void RandomMovement(int timerOn) {
+
+    if(rMove) {
+
+        int opt = rand() % 9;
+        switch (opt) {
+            case 0:
+                angle1 = (angle1 - 5) % 360;
+                break;
+            case 1:
+                angle2 = (angle2 - 5) % 360;
+                break;
+            case 2:
+                angle3 = (angle3 - 5) % 360;
+                break;
+            case 3:
+                angle4 = (angle4 - 5) % 360;
+                break;
+            case 4:
+                angle5 = (angle5 - 5) % 360;
+                break;
+            case 5:
+                angle6 = (angle6 - 5) % 360;
+                break;
+            case 6:
+                angle7 = (angle7 - 5) % 360;
+                break;
+            case 7:
+                angle8 = (angle8 - 5) % 360;
+                break;
+            case 8:
+                angle9 = (angle9 - 5) % 360;
+                break;
+        }
+
+        glutPostRedisplay();
+        glutTimerFunc(2000/15, RandomMovement, 0);
+    }
 
 }
 
@@ -450,16 +503,17 @@ void Keyboard(unsigned char key) {
         rot+=5;
     } else if(key=='R') {
         rot-=5;
-    } else if(key==27) {
+    }
+
+    else if(key==27) { //tecla ESC é utilizada para finalizar o programa
         exit(0);
     } else if(key=='g') { //tecla g é utilizada para iniciar a trajetória
         pause = !pause;
         glutTimerFunc(0,FollowCurve,0);
-    } else if(key=='z') {
+    } else if(key=='z') { //tecla z é utilizada para mudar a posição do cubo
         rand_x = rand_number(-4, 4);
         rand_z = rand_number(-4, 4);
-        printf("rand_x: %f, rand_z: %f\n", rand_x, rand_z);
-    } else if(key=='x') {
+    } else if(key=='x') { //tecla x é usada para soltar o cubo
         grab = 0;
     }
 
@@ -509,6 +563,12 @@ void Keyboard(unsigned char key) {
         angle9 = (angle9 + 5) % 360;
     }
 
+    else if(key=='.') {
+        rMove = !rMove;
+        glutTimerFunc(0,RandomMovement,0);
+    }
+
+
     //movimento linear da garra
     else if(key=='+') {
         if((pos6 - pos3) < 1) {
@@ -534,7 +594,6 @@ int main(int argc, char **argv) {
 
     rand_x = rand_number(-4, 4);
     rand_z = rand_number(-4, 4);
-    printf("rand_x: %f, rand_z: %f\n", rand_x, rand_z);
 
     glutInit(&argc, argv);
 
