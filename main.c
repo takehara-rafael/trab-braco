@@ -42,11 +42,7 @@ int pause=1, choice=0, grab=0, rMove=0;
 
 double rand_x = 0, rand_z = 0;
 
-GLdouble matrix_cube[16], matrix_scene[16], proj_matrix[16]; 
-
-GLdouble camViewMatrix[16], invCamViewMatrix[16];
-
-GLint vp[4];
+GLdouble matrix_scene[16], camViewMatrix[16], invCamViewMatrix[16];
 
 void Display();
 void Mouse(int btn, int state);
@@ -295,8 +291,6 @@ void BuildArm() {
 
     glPopMatrix();
 
-    glGetDoublev(GL_PROJECTION_MATRIX, proj_matrix);
-    glGetIntegerv(GL_VIEWPORT, vp);
     glPushMatrix();
     
     if(!grab) {
@@ -386,8 +380,6 @@ void DrawCube(GLfloat centerXpos, GLfloat centerYpos, GLfloat centerZpos, GLfloa
 
     glTranslatef(centerXpos, centerYpos, centerZpos);
     glutSolidCube(edgeLength);
-
-    glGetDoublev(GL_MODELVIEW_MATRIX, matrix_cube);
 
 }
 
