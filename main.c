@@ -102,6 +102,7 @@ void Display() {
     BuildArm();
     glPopMatrix();
 
+//verificação de colisão da garra com o cubo
         if((pos6 - pos3) < (-0.3)) {
                 if (
                     (w.x < rand_x+0.5 && w.x > rand_x-0.5) &&
@@ -122,6 +123,7 @@ void Display() {
 
 /******************************************************************/
 
+//função que constroi a mesa e solo
 void BuildScene() {
 
     //chão
@@ -167,7 +169,7 @@ void BuildScene() {
 
 /********************************************************************************/
 
-
+//função que desenha a curva que a camera ira percorrer
 void DrawPath() {
 
     //desenho do caminho da camera
@@ -204,6 +206,7 @@ void DrawPath() {
 
 /******************************************************************/
 
+//função que constroi o braço
 void BuildArm() {
 
     //primeiro elo
@@ -305,6 +308,7 @@ void BuildArm() {
 
 /******************************************************************/
 
+//geração de número aleatório para o cubo
 double rand_number(double min, double max) {
 
     double num=0;
@@ -361,6 +365,7 @@ void FollowCurve(int timerOn) {
 
 /******************************************************************/
 
+//função para diminuir a distância entre os dedos após agarrar o cubo
 void moveHand(int a) {
 
     if(grab) {
@@ -376,6 +381,7 @@ void moveHand(int a) {
 
 /******************************************************************/
 
+//função para desenhar o cubo
 void DrawCube(GLfloat centerXpos, GLfloat centerYpos, GLfloat centerZpos, GLfloat edgeLength) {
 
     glTranslatef(centerXpos, centerYpos, centerZpos);
@@ -387,6 +393,7 @@ void DrawCube(GLfloat centerXpos, GLfloat centerYpos, GLfloat centerZpos, GLfloa
 
 /******************************************************************/
 
+//função para o braço realizar movimentos aleatórios
 void RandomMovement(int timerOn) {
 
     if(rMove) {
@@ -431,6 +438,7 @@ void RandomMovement(int timerOn) {
 
 /******************************************************************/
 
+//função que utiliza o mouse para mudar a posição da câmera
 void Mouse(int btn, int state) {
     switch(btn) {
         case GLUT_LEFT_BUTTON:
@@ -468,6 +476,7 @@ void Mouse(int btn, int state) {
 
 /******************************************************************/
 
+//função para utilizar o teclado para realizar funções diversas
 void Keyboard(unsigned char key) {
     //movimentações da câmera
     if(key=='d') {
@@ -504,7 +513,7 @@ void Keyboard(unsigned char key) {
         grab = 0;
     }
 
-    //rotações
+    //rotações do braço
     // primeira esfera
     else if(key=='i') {
         angle1 = (angle1 - 5) % 360;
@@ -549,12 +558,11 @@ void Keyboard(unsigned char key) {
     } else if(key=='M') {
         angle9 = (angle9 + 5) % 360;
     }
-
+    //movimentos aleatórios
     else if(key=='.') {
         rMove = !rMove;
         glutTimerFunc(0,RandomMovement,0);
     }
-
 
     //movimento linear da garra
     else if(key=='+') {
@@ -575,6 +583,7 @@ void Keyboard(unsigned char key) {
 
 /******************************************************************/
 
+//função principal do programa
 int main(int argc, char **argv) {
 
     srand(time(NULL));
@@ -600,6 +609,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+//função de inversão de uma matriz 4x4
 int gluInvertMatrix(const double m[16], double invOut[16]) {
     double inv[16], det;
     int i;
@@ -729,6 +739,7 @@ int gluInvertMatrix(const double m[16], double invOut[16]) {
     return 1;
 }
 
+//função para realizar a multiplicação de duas matrizes 4x4
 static inline void Matrix4x4MultiplyBy4x4 (GLdouble *src1, GLdouble *src2, struct world *w) {
 w->x = (*(src1+O(0,0)) * *(src2+O(0,3))) + (*(src1+O(0,1)) * *(src2+O(1,3))) + (*(src1+O(0,2)) * *(src2+O(2,3))) + (*(src1+O(0,3)) * *(src2+O(3,3))); 
 w->y = (*(src1+O(1,0)) * *(src2+O(0,3))) + (*(src1+O(1,1)) * *(src2+O(1,3))) + (*(src1+O(1,2)) * *(src2+O(2,3))) + (*(src1+O(1,3)) * *(src2+O(3,3))); 
